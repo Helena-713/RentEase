@@ -3,6 +3,7 @@ const AppError = require('../utils/AppError');
 const logger = require('../config/logger');
 const { PropertyStatus } = require('../constants/propertyStatus');
 const { MAX_PROPERTY_IMAGES } = require('../constants/upload');
+const { getPaginationOptions } = require('../utils/pagination');
 const {
   buildPropertyImagePath,
   getPropertyImageFilename,
@@ -162,14 +163,45 @@ const create = async (landlordId, data, files, { log: requestLog } = {}) => {
   }
 };
 
-const listMine = async (landlordId) => {
-  const properties = await Property.findAll({
+const listMine = async (landlordId, { page, limit }) => {
+  const { rows, count } = await Property.findAndCountAll({
     where: { landlordId },
     include: [imageInclude],
     order: [['createdAt', 'DESC']],
+    ...getPaginationOptions({ page, limit }),
   });
 
-  return properties.map((property) => sanitizeProperty(property));
+  return {
+    items: rows.map((property) => sanitizeProperty(property)),
+    total: count,
+  };
+};
+
+const listPublic = async ({ page, limit }) => {
+  const { rows, count } = await Property.findAndCountAll({
+    where: { isApproved: true },
+    include: [imageInclude],
+    order: [['createdAt', 'DESC']],
+    ...getPaginationOptions({ page, limit }),
+  });
+
+  return {
+    items: rows.map((property) => sanitizeProperty(property)),
+    total: count,
+  };
+};
+
+const getPublicById = async (propertyId) => {
+  const property = await Property.findOne({
+    where: { id: propertyId, isApproved: true },
+    include: [imageInclude],
+  });
+
+  if (!property) {
+    throw new AppError('Property not found', 404);
+  }
+
+  return sanitizeProperty(property);
 };
 
 const getByIdForOwner = async (propertyId, landlordId) => {
@@ -318,8 +350,8 @@ const deleteImage = async (propertyId, imageId, landlordId) => {
   }
 };
 
-const listPending = async () => {
-  const properties = await Property.findAll({
+const listPending = async ({ page, limit }) => {
+  const { rows, count } = await Property.findAndCountAll({
     where: { isApproved: false },
     include: [
       imageInclude,
@@ -330,11 +362,15 @@ const listPending = async () => {
       },
     ],
     order: [['createdAt', 'ASC']],
+    ...getPaginationOptions({ page, limit }),
   });
 
-  return properties.map((property) =>
-    sanitizeProperty(property, { includeLandlord: true })
-  );
+  return {
+    items: rows.map((property) =>
+      sanitizeProperty(property, { includeLandlord: true })
+    ),
+    total: count,
+  };
 };
 
 const review = async (propertyId, { isApproved, rejectionReason }) => {
@@ -373,6 +409,8 @@ module.exports = {
   sanitizeProperty,
   create,
   listMine,
+  listPublic,
+  getPublicById,
   getByIdForOwner,
   update,
   deleteImage,

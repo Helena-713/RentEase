@@ -10,6 +10,10 @@ const {
   createPropertySchema,
   updatePropertySchema,
   getPropertySchema,
+  getPublicPropertySchema,
+  listPublicSchema,
+  listMineSchema,
+  listPendingSchema,
   deleteImageSchema,
   reviewSchema,
 } = require('../schemas/property.schema');
@@ -26,9 +30,16 @@ const authorizeLandlord = (req, res, next) => {
 };
 
 router.get(
+  '/',
+  validate(listPublicSchema),
+  asyncHandler(propertyController.listPublic)
+);
+
+router.get(
   '/pending',
   authenticate,
   authorizeAdmin,
+  validate(listPendingSchema),
   asyncHandler(propertyController.listPending)
 );
 
@@ -36,7 +47,14 @@ router.get(
   '/mine',
   authenticate,
   authorizeLandlord,
+  validate(listMineSchema),
   asyncHandler(propertyController.listMine)
+);
+
+router.get(
+  '/public/:id',
+  validate(getPublicPropertySchema),
+  asyncHandler(propertyController.getPublicById)
 );
 
 router.post(

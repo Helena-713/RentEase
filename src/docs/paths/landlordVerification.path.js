@@ -1,9 +1,10 @@
 const registry = require('../registry');
 const {
   landlordVerificationResponseSchema,
-  landlordVerificationListResponseSchema,
+  landlordVerificationPaginatedResponseSchema,
   reviewBodySchema,
 } = require('../../schemas/landlordVerification.schema');
+const { paginationQuerySchema } = require('../../schemas/pagination.schema');
 const { errorResponseSchema } = require('../../schemas/common.schema');
 
 registry.registerPath({
@@ -75,14 +76,17 @@ registry.registerPath({
   method: 'get',
   path: '/landlord-verifications/pending',
   tags: ['Landlord Verifications'],
-  summary: 'List pending landlord verifications (admin only)',
+  summary: 'List pending landlord verifications (admin only, paginated)',
   security: [{ bearerAuth: [] }],
+  request: {
+    query: paginationQuerySchema,
+  },
   responses: {
     200: {
       description: 'Pending verifications',
       content: {
         'application/json': {
-          schema: landlordVerificationListResponseSchema,
+          schema: landlordVerificationPaginatedResponseSchema,
         },
       },
     },

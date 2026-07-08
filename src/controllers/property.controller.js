@@ -1,5 +1,5 @@
-const AppError = require('../utils/AppError');
 const propertyService = require('../services/property.service');
+const { sendPaginatedResponse } = require('../utils/pagination');
 
 const create = async (req, res) => {
   const property = await propertyService.create(
@@ -15,12 +15,24 @@ const create = async (req, res) => {
   });
 };
 
+const listPublic = async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await propertyService.listPublic({ page, limit });
+  sendPaginatedResponse(res, { ...result, page, limit });
+};
+
 const listMine = async (req, res) => {
-  const properties = await propertyService.listMine(req.user.id);
+  const { page, limit } = req.query;
+  const result = await propertyService.listMine(req.user.id, { page, limit });
+  sendPaginatedResponse(res, { ...result, page, limit });
+};
+
+const getPublicById = async (req, res) => {
+  const property = await propertyService.getPublicById(req.params.id);
 
   res.status(200).json({
     success: true,
-    data: properties,
+    data: property,
   });
 };
 
@@ -64,13 +76,10 @@ const deleteImage = async (req, res) => {
   });
 };
 
-const listPending = async (_req, res) => {
-  const properties = await propertyService.listPending();
-
-  res.status(200).json({
-    success: true,
-    data: properties,
-  });
+const listPending = async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await propertyService.listPending({ page, limit });
+  sendPaginatedResponse(res, { ...result, page, limit });
 };
 
 const review = async (req, res) => {
@@ -84,7 +93,9 @@ const review = async (req, res) => {
 
 module.exports = {
   create,
+  listPublic,
   listMine,
+  getPublicById,
   getById,
   update,
   deleteImage,

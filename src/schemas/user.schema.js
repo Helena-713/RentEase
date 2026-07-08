@@ -1,5 +1,6 @@
 const { z } = require('./zod');
 const { successResponseSchema } = require('./common.schema');
+const { paginationQuerySchema, paginatedResponseSchema } = require('./pagination.schema');
 const { authUserSchema } = require('./auth.schema');
 const { phoneSchema, strongPasswordSchema } = require('./validators');
 
@@ -40,10 +41,20 @@ const userResponseSchema = successResponseSchema(authUserSchema).openapi(
   'UserResponse'
 );
 
+const userPaginatedResponseSchema = paginatedResponseSchema(
+  authUserSchema
+).openapi('UserPaginatedResponse');
+
+const listUsersSchema = z.object({
+  query: paginationQuerySchema,
+});
+
 module.exports = {
   updateMeBodySchema,
   updateUserByIdBodySchema,
   updateMeSchema,
   updateUserByIdSchema,
   userResponseSchema,
+  userPaginatedResponseSchema,
+  listUsersSchema,
 };

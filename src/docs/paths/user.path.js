@@ -1,5 +1,6 @@
 const registry = require('../registry');
-const { userResponseSchema } = require('../../schemas/user.schema');
+const { userResponseSchema, userPaginatedResponseSchema } = require('../../schemas/user.schema');
+const { paginationQuerySchema } = require('../../schemas/pagination.schema');
 const { errorResponseSchema } = require('../../schemas/common.schema');
 
 registry.registerComponent('securitySchemes', 'bearerAuth', {
@@ -26,6 +27,43 @@ const updateMeMultipartSchema = {
     currentPassword: { type: 'string' },
   },
 };
+
+registry.registerPath({
+  method: 'get',
+  path: '/users',
+  tags: ['Users'],
+  summary: 'List all users (admin only, paginated)',
+  security: [{ bearerAuth: [] }],
+  request: {
+    query: paginationQuerySchema,
+  },
+  responses: {
+    200: {
+      description: 'Paginated user list',
+      content: {
+        'application/json': {
+          schema: userPaginatedResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: 'Forbidden',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+  },
+});
 
 registry.registerPath({
   method: 'get',

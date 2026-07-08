@@ -10,11 +10,20 @@ const landlordVerificationController = require('../controllers/landlordVerificat
 const {
   updateMeSchema,
   updateUserByIdSchema,
+  listUsersSchema,
 } = require('../schemas/user.schema');
 
 const router = express.Router();
 
 router.get('/me', authenticate, asyncHandler(userController.getMe));
+
+router.get(
+  '/',
+  authenticate,
+  authorizeAdmin,
+  validate(listUsersSchema),
+  asyncHandler(userController.listUsers)
+);
 
 router.patch(
   '/me/landlord-verification',

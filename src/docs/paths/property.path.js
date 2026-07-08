@@ -1,9 +1,10 @@
 const registry = require('../registry');
 const {
   propertyResponseSchema,
-  propertyListResponseSchema,
+  propertyPaginatedResponseSchema,
   reviewBodySchema,
 } = require('../../schemas/property.schema');
+const { paginationQuerySchema } = require('../../schemas/pagination.schema');
 const { errorResponseSchema } = require('../../schemas/common.schema');
 const { PROPERTY_TYPES } = require('../../constants/propertyType');
 const { PROPERTY_STATUSES } = require('../../constants/propertyStatus');
@@ -63,6 +64,45 @@ const updatePropertyMultipartSchema = {
 };
 
 registry.registerPath({
+  method: 'get',
+  path: '/properties',
+  tags: ['Properties'],
+  summary: 'List approved properties (public, paginated)',
+  request: {
+    query: paginationQuerySchema,
+  },
+  responses: {
+    200: {
+      description: 'Approved properties',
+      content: {
+        'application/json': {
+          schema: propertyPaginatedResponseSchema,
+        },
+      },
+    },
+    400: { description: 'Validation failed', content: { 'application/json': { schema: errorResponseSchema } } },
+  },
+});
+
+registry.registerPath({
+  method: 'get',
+  path: '/properties/public/{id}',
+  tags: ['Properties'],
+  summary: 'Get approved property by id (public)',
+  responses: {
+    200: {
+      description: 'Property details',
+      content: {
+        'application/json': {
+          schema: propertyResponseSchema,
+        },
+      },
+    },
+    404: { description: 'Not found', content: { 'application/json': { schema: errorResponseSchema } } },
+  },
+});
+
+registry.registerPath({
   method: 'post',
   path: '/properties',
   tags: ['Properties'],
@@ -96,14 +136,17 @@ registry.registerPath({
   method: 'get',
   path: '/properties/mine',
   tags: ['Properties'],
-  summary: 'List own properties',
+  summary: 'List own properties (paginated)',
   security: [{ bearerAuth: [] }],
+  request: {
+    query: paginationQuerySchema,
+  },
   responses: {
     200: {
       description: 'Own properties',
       content: {
         'application/json': {
-          schema: propertyListResponseSchema,
+          schema: propertyPaginatedResponseSchema,
         },
       },
     },
@@ -190,14 +233,17 @@ registry.registerPath({
   method: 'get',
   path: '/properties/pending',
   tags: ['Properties'],
-  summary: 'List pending properties (admin only)',
+  summary: 'List pending properties (admin only, paginated)',
   security: [{ bearerAuth: [] }],
+  request: {
+    query: paginationQuerySchema,
+  },
   responses: {
     200: {
       description: 'Pending properties',
       content: {
         'application/json': {
-          schema: propertyListResponseSchema,
+          schema: propertyPaginatedResponseSchema,
         },
       },
     },

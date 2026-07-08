@@ -7,6 +7,7 @@ const {
   EDITABLE_STATUSES,
   REVIEW_STATUSES,
 } = require('../constants/verificationStatus');
+const { getPaginationOptions } = require('../utils/pagination');
 const {
   getVerificationDocumentFilename,
   deleteVerificationDocumentFile,
@@ -112,8 +113,8 @@ const updateMe = async (
   }
 };
 
-const listPending = async () => {
-  const verifications = await LandlordVerification.findAll({
+const listPending = async ({ page, limit }) => {
+  const { rows, count } = await LandlordVerification.findAndCountAll({
     where: { status: VerificationStatus.PENDING },
     include: [
       {
@@ -123,11 +124,15 @@ const listPending = async () => {
       },
     ],
     order: [['createdAt', 'ASC']],
+    ...getPaginationOptions({ page, limit }),
   });
 
-  return verifications.map((verification) =>
-    sanitizeVerification(verification, { includeUser: true })
-  );
+  return {
+    items: rows.map((verification) =>
+      sanitizeVerification(verification, { includeUser: true })
+    ),
+    total: count,
+  };
 };
 
 const review = async (id, { status, rejectionReason, adminId }) => {

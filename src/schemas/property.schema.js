@@ -1,5 +1,6 @@
 const { z } = require('./zod');
 const { successResponseSchema } = require('./common.schema');
+const { paginationQuerySchema, paginatedResponseSchema } = require('./pagination.schema');
 const { PROPERTY_TYPES } = require('../constants/propertyType');
 const { PROPERTY_STATUSES } = require('../constants/propertyStatus');
 
@@ -56,6 +57,10 @@ const propertyListResponseSchema = successResponseSchema(
   z.array(propertySchema)
 ).openapi('PropertyListResponse');
 
+const propertyPaginatedResponseSchema = paginatedResponseSchema(
+  propertySchema
+).openapi('PropertyPaginatedResponse');
+
 const propertyFieldsSchema = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
@@ -98,6 +103,22 @@ const getPropertySchema = z.object({
   params: propertyIdParamsSchema,
 });
 
+const getPublicPropertySchema = z.object({
+  params: propertyIdParamsSchema,
+});
+
+const listPublicSchema = z.object({
+  query: paginationQuerySchema,
+});
+
+const listMineSchema = z.object({
+  query: paginationQuerySchema,
+});
+
+const listPendingSchema = z.object({
+  query: paginationQuerySchema,
+});
+
 const deleteImageSchema = z.object({
   params: propertyImageParamsSchema,
 });
@@ -125,9 +146,14 @@ module.exports = {
   propertySchema,
   propertyResponseSchema,
   propertyListResponseSchema,
+  propertyPaginatedResponseSchema,
   createPropertySchema,
   updatePropertySchema,
   getPropertySchema,
+  getPublicPropertySchema,
+  listPublicSchema,
+  listMineSchema,
+  listPendingSchema,
   deleteImageSchema,
   reviewBodySchema,
   reviewSchema,

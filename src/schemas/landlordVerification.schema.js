@@ -1,5 +1,6 @@
 const { z } = require('./zod');
 const { successResponseSchema } = require('./common.schema');
+const { paginationQuerySchema, paginatedResponseSchema } = require('./pagination.schema');
 const {
   VERIFICATION_STATUSES,
   REVIEW_STATUSES,
@@ -39,6 +40,14 @@ const landlordVerificationListResponseSchema = successResponseSchema(
   z.array(landlordVerificationSchema)
 ).openapi('LandlordVerificationListResponse');
 
+const landlordVerificationPaginatedResponseSchema = paginatedResponseSchema(
+  landlordVerificationSchema
+).openapi('LandlordVerificationPaginatedResponse');
+
+const listPendingSchema = z.object({
+  query: paginationQuerySchema,
+});
+
 const reviewBodySchema = z
   .object({
     status: z.enum(REVIEW_STATUSES),
@@ -67,6 +76,8 @@ module.exports = {
   landlordVerificationSchema,
   landlordVerificationResponseSchema,
   landlordVerificationListResponseSchema,
+  landlordVerificationPaginatedResponseSchema,
+  listPendingSchema,
   reviewBodySchema,
   reviewSchema,
 };

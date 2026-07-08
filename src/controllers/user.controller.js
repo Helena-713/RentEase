@@ -1,6 +1,7 @@
 const AppError = require('../utils/AppError');
 const userService = require('../services/user.service');
 const { buildProfileImagePath } = require('../config/upload');
+const { sendPaginatedResponse } = require('../utils/pagination');
 
 const UPDATABLE_FIELDS = ['firstName', 'lastName', 'phone', 'password'];
 
@@ -24,6 +25,12 @@ const getMe = async (req, res) => {
     success: true,
     data: user,
   });
+};
+
+const listUsers = async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await userService.listUsers({ page, limit });
+  sendPaginatedResponse(res, { ...result, page, limit });
 };
 
 const updateMe = async (req, res) => {
@@ -58,4 +65,4 @@ const updateById = async (req, res) => {
   });
 };
 
-module.exports = { getMe, updateMe, updateById };
+module.exports = { getMe, listUsers, updateMe, updateById };

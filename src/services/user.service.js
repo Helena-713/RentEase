@@ -1,6 +1,7 @@
 const { User, sequelize } = require('../models');
 const AppError = require('../utils/AppError');
 const logger = require('../config/logger');
+const { getPaginationOptions } = require('../utils/pagination');
 const { hashPassword, comparePassword } = require('../utils/password');
 const {
   deleteProfileImageFile,
@@ -100,6 +101,18 @@ const getMe = async (userId) => {
   return sanitizeUser(user);
 };
 
+const listUsers = async ({ page, limit }) => {
+  const { rows, count } = await User.findAndCountAll({
+    order: [['createdAt', 'DESC']],
+    ...getPaginationOptions({ page, limit }),
+  });
+
+  return {
+    items: rows.map(sanitizeUser),
+    total: count,
+  };
+};
+
 const updateMe = async (userId, data, options = {}) => {
   const user = await User.findByPk(userId);
 
@@ -120,4 +133,4 @@ const updateById = async (targetId, data, options = {}) => {
   return applyUpdate(user, data, options);
 };
 
-module.exports = { sanitizeUser, getMe, updateMe, updateById };
+module.exports = { sanitizeUser, getMe, listUsers, updateMe, updateById };

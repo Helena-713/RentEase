@@ -1,6 +1,7 @@
 const AppError = require('../utils/AppError');
 const landlordVerificationService = require('../services/landlordVerification.service');
 const { buildVerificationDocumentPath } = require('../config/upload');
+const { sendPaginatedResponse } = require('../utils/pagination');
 
 const updateMe = async (req, res) => {
   if (!req.file) {
@@ -19,13 +20,10 @@ const updateMe = async (req, res) => {
   });
 };
 
-const listPending = async (_req, res) => {
-  const verifications = await landlordVerificationService.listPending();
-
-  res.status(200).json({
-    success: true,
-    data: verifications,
-  });
+const listPending = async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await landlordVerificationService.listPending({ page, limit });
+  sendPaginatedResponse(res, { ...result, page, limit });
 };
 
 const review = async (req, res) => {
