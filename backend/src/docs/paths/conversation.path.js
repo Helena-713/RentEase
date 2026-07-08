@@ -11,6 +11,7 @@ const { paginationQuerySchema } = require('../../schemas/pagination.schema');
 const { errorResponseSchema } = require('../../schemas/common.schema');
 const { successResponseSchema } = require('../../schemas/common.schema');
 const { z } = require('../../schemas/zod');
+const { idParamsSchema } = require('../params');
 
 const standardErrorResponses = {
   400: {
@@ -123,6 +124,9 @@ registry.registerPath({
   tags: ['Conversations'],
   summary: 'Get conversation by id (participant only)',
   security: [{ bearerAuth: [] }],
+  request: {
+    params: idParamsSchema,
+  },
   responses: {
     200: {
       description: 'Conversation details',
@@ -143,6 +147,7 @@ registry.registerPath({
   summary: 'Send a message in a conversation (participant only)',
   security: [{ bearerAuth: [] }],
   request: {
+    params: idParamsSchema,
     body: {
       content: {
         'application/json': {
@@ -171,6 +176,7 @@ registry.registerPath({
   summary: 'List messages in a conversation (paginated, participant only)',
   security: [{ bearerAuth: [] }],
   request: {
+    params: idParamsSchema,
     query: paginationQuerySchema,
   },
   responses: {
@@ -192,6 +198,9 @@ registry.registerPath({
   tags: ['Conversations'],
   summary: 'Mark other party messages as read (participant only)',
   security: [{ bearerAuth: [] }],
+  request: {
+    params: idParamsSchema,
+  },
   responses: {
     200: {
       description: 'Messages marked as read',

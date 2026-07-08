@@ -7,6 +7,7 @@ const {
   User,
   sequelize,
 } = require('../models');
+const { Op } = require('sequelize');
 const AppError = require('../utils/AppError');
 const logger = require('../config/logger');
 const { UserRole } = require('../constants/userRoles');
@@ -209,10 +210,72 @@ const listMine = async (landlordId, { page, limit }) => {
   };
 };
 
-const listPublic = async ({ page, limit }) => {
+const listPublic = async ({
+  page,
+  limit,
+  city,
+  state,
+  propertyType,
+  bedroomsMin,
+  bathroomsMin,
+  priceMin,
+  priceMax,
+  areaMin,
+  areaMax,
+  q,
+  amenityIds,
+}) => {
+  const where = {
+    isApproved: true,
+    status: PropertyStatus.AVAILABLE,
+  };
+
+  if (city) where.city = city;
+  if (state) where.state = state;
+  if (propertyType) where.propertyType = propertyType;
+
+  if (bedroomsMin != null) where.bedrooms = { [Op.gte]: bedroomsMin };
+  if (bathroomsMin != null) where.bathrooms = { [Op.gte]: bathroomsMin };
+
+  if (priceMin != null && priceMax != null) {
+    where.price = { [Op.between]: [priceMin, priceMax] };
+  } else if (priceMin != null) {
+    where.price = { [Op.gte]: priceMin };
+  } else if (priceMax != null) {
+    where.price = { [Op.lte]: priceMax };
+  }
+
+  if (areaMin != null && areaMax != null) {
+    where.areaSqft = { [Op.between]: [areaMin, areaMax] };
+  } else if (areaMin != null) {
+    where.areaSqft = { [Op.gte]: areaMin };
+  } else if (areaMax != null) {
+    where.areaSqft = { [Op.lte]: areaMax };
+  }
+
+  if (q) {
+    const needle = `%${q}%`;
+    where[Op.or] = [
+      { title: { [Op.iLike]: needle } },
+      { address: { [Op.iLike]: needle } },
+      { description: { [Op.iLike]: needle } },
+      { city: { [Op.iLike]: needle } },
+      { state: { [Op.iLike]: needle } },
+    ];
+  }
+
+  const include = [imageInclude, amenityInclude];
+  if (amenityIds?.length) {
+    include[1] = {
+      ...amenityInclude,
+      where: { id: { [Op.in]: amenityIds } },
+      required: true,
+    };
+  }
+
   const { rows, count } = await Property.findAndCountAll({
-    where: { isApproved: true },
-    include: [imageInclude, amenityInclude],
+    where,
+    include,
     distinct: true,
     order: [['createdAt', 'DESC']],
     ...getPaginationOptions({ page, limit }),

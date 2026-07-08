@@ -3,6 +3,7 @@ const { userResponseSchema, userPaginatedResponseSchema } = require('../../schem
 const { reviewPaginatedResponseSchema } = require('../../schemas/review.schema');
 const { paginationQuerySchema } = require('../../schemas/pagination.schema');
 const { errorResponseSchema } = require('../../schemas/common.schema');
+const { idParamsSchema } = require('../params');
 
 registry.registerComponent('securitySchemes', 'bearerAuth', {
   type: 'http',
@@ -158,6 +159,7 @@ registry.registerPath({
   summary: 'Update any user (admin only)',
   security: [{ bearerAuth: [] }],
   request: {
+    params: idParamsSchema,
     body: {
       content: {
         'multipart/form-data': {
@@ -216,6 +218,7 @@ registry.registerPath({
   tags: ['Users'],
   summary: 'List reviews received by a user (public, paginated)',
   request: {
+    params: idParamsSchema,
     query: paginationQuerySchema,
   },
   responses: {

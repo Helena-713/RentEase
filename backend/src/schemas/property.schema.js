@@ -115,8 +115,36 @@ const getPublicPropertySchema = z.object({
   params: propertyIdParamsSchema,
 });
 
+const listPublicQuerySchema = paginationQuerySchema.extend({
+  city: z.string().min(1).optional(),
+  state: z.string().min(1).optional(),
+  propertyType: z.enum(PROPERTY_TYPES).optional(),
+  bedroomsMin: z.coerce.number().int().min(0).optional(),
+  bathroomsMin: z.coerce.number().int().min(0).optional(),
+  priceMin: z.coerce.number().min(0).optional(),
+  priceMax: z.coerce.number().min(0).optional(),
+  areaMin: z.coerce.number().int().min(0).optional(),
+  areaMax: z.coerce.number().int().min(0).optional(),
+  q: z.string().min(1).optional(),
+  amenityIds: z
+    .string()
+    .optional()
+    .transform((s) => {
+      if (!s) return undefined;
+      const ids = s
+        .split(',')
+        .map((x) => x.trim())
+        .filter(Boolean);
+      return ids.length ? ids : undefined;
+    })
+    .refine(
+      (ids) => !ids || ids.every((id) => z.string().uuid().safeParse(id).success),
+      { message: 'amenityIds must be a comma-separated list of UUIDs' }
+    ),
+});
+
 const listPublicSchema = z.object({
-  query: paginationQuerySchema,
+  query: listPublicQuerySchema,
 });
 
 const listMineSchema = z.object({
@@ -174,6 +202,7 @@ module.exports = {
   updatePropertySchema,
   getPropertySchema,
   getPublicPropertySchema,
+  listPublicQuerySchema,
   listPublicSchema,
   listMineSchema,
   listPendingSchema,

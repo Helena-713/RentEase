@@ -6,6 +6,7 @@ const {
 } = require('../../schemas/landlordVerification.schema');
 const { paginationQuerySchema } = require('../../schemas/pagination.schema');
 const { errorResponseSchema } = require('../../schemas/common.schema');
+const { idParamsSchema } = require('../params');
 
 registry.registerPath({
   method: 'patch',
@@ -116,6 +117,7 @@ registry.registerPath({
   summary: 'Review a pending landlord verification (admin only)',
   security: [{ bearerAuth: [] }],
   request: {
+    params: idParamsSchema,
     body: {
       content: {
         'application/json': {

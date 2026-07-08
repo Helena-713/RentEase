@@ -17,7 +17,7 @@ const create = async (req, res) => {
 
 const listPublic = async (req, res) => {
   const { page, limit } = req.query;
-  const result = await propertyService.listPublic({ page, limit });
+  const result = await propertyService.listPublic(req.query);
   sendPaginatedResponse(res, { ...result, page, limit });
 };
 

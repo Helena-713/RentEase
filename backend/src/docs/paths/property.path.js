@@ -4,9 +4,11 @@ const {
   propertyPaginatedResponseSchema,
   setPropertyAmenitiesBodySchema,
   reviewBodySchema,
+  listPublicQuerySchema,
 } = require('../../schemas/property.schema');
 const { paginationQuerySchema } = require('../../schemas/pagination.schema');
 const { errorResponseSchema } = require('../../schemas/common.schema');
+const { idParamsSchema, propertyImageParamsSchema } = require('../params');
 const { PROPERTY_TYPES } = require('../../constants/propertyType');
 const { PROPERTY_STATUSES } = require('../../constants/propertyStatus');
 
@@ -68,13 +70,13 @@ registry.registerPath({
   method: 'get',
   path: '/properties',
   tags: ['Properties'],
-  summary: 'List approved properties (public, paginated)',
+  summary: 'List available approved properties (public, paginated)',
   request: {
-    query: paginationQuerySchema,
+    query: listPublicQuerySchema,
   },
   responses: {
     200: {
-      description: 'Approved properties',
+      description: 'Available approved properties',
       content: {
         'application/json': {
           schema: propertyPaginatedResponseSchema,
@@ -90,6 +92,9 @@ registry.registerPath({
   path: '/properties/public/{id}',
   tags: ['Properties'],
   summary: 'Get approved property by id (public)',
+  request: {
+    params: idParamsSchema,
+  },
   responses: {
     200: {
       description: 'Property details',
@@ -162,6 +167,9 @@ registry.registerPath({
   tags: ['Properties'],
   summary: 'Get own property by id',
   security: [{ bearerAuth: [] }],
+  request: {
+    params: idParamsSchema,
+  },
   responses: {
     200: {
       description: 'Property details',
@@ -184,6 +192,7 @@ registry.registerPath({
   summary: 'Update property and optionally append images',
   security: [{ bearerAuth: [] }],
   request: {
+    params: idParamsSchema,
     body: {
       content: {
         'multipart/form-data': {
@@ -214,6 +223,9 @@ registry.registerPath({
   tags: ['Properties'],
   summary: 'Delete a property image',
   security: [{ bearerAuth: [] }],
+  request: {
+    params: propertyImageParamsSchema,
+  },
   responses: {
     200: {
       description: 'Image deleted',
@@ -237,6 +249,7 @@ registry.registerPath({
   summary: 'Replace property amenities (owner landlord or admin)',
   security: [{ bearerAuth: [] }],
   request: {
+    params: idParamsSchema,
     body: {
       content: {
         'application/json': {
@@ -291,6 +304,7 @@ registry.registerPath({
   summary: 'Approve or reject a property (admin only)',
   security: [{ bearerAuth: [] }],
   request: {
+    params: idParamsSchema,
     body: {
       content: {
         'application/json': {
@@ -321,6 +335,9 @@ registry.registerPath({
   tags: ['Properties'],
   summary: 'Mark a rented property as available and complete the rental (landlord owner only)',
   security: [{ bearerAuth: [] }],
+  request: {
+    params: idParamsSchema,
+  },
   responses: {
     200: {
       description: 'Property marked as available',

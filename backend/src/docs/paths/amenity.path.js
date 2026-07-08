@@ -6,6 +6,7 @@ const {
 } = require('../../schemas/amenity.schema');
 const { paginationQuerySchema } = require('../../schemas/pagination.schema');
 const { errorResponseSchema } = require('../../schemas/common.schema');
+const { idParamsSchema } = require('../params');
 
 registry.registerPath({
   method: 'post',
@@ -99,6 +100,9 @@ registry.registerPath({
   path: '/amenities/{id}',
   tags: ['Amenities'],
   summary: 'Get amenity by id',
+  request: {
+    params: idParamsSchema,
+  },
   responses: {
     200: {
       description: 'Amenity details',

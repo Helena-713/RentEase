@@ -6,6 +6,7 @@ const {
 } = require('../../schemas/review.schema');
 const { paginationQuerySchema } = require('../../schemas/pagination.schema');
 const { errorResponseSchema } = require('../../schemas/common.schema');
+const { idParamsSchema } = require('../params');
 
 const standardErrorResponses = {
   400: {
@@ -130,6 +131,9 @@ registry.registerPath({
   tags: ['Reviews'],
   summary: 'Get review by id (admin only)',
   security: [{ bearerAuth: [] }],
+  request: {
+    params: idParamsSchema,
+  },
   responses: {
     200: {
       description: 'Review details',

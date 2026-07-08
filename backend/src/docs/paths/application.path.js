@@ -6,6 +6,7 @@ const {
   listApplicationsQuerySchema,
 } = require('../../schemas/application.schema');
 const { errorResponseSchema } = require('../../schemas/common.schema');
+const { idParamsSchema } = require('../params');
 
 const standardErrorResponses = {
   400: {
@@ -86,6 +87,9 @@ registry.registerPath({
   tags: ['Applications'],
   summary: 'Get tenant application by id',
   security: [{ bearerAuth: [] }],
+  request: {
+    params: idParamsSchema,
+  },
   responses: {
     200: {
       description: 'Application details',
@@ -127,6 +131,9 @@ registry.registerPath({
   tags: ['Applications'],
   summary: 'Get landlord application by id',
   security: [{ bearerAuth: [] }],
+  request: {
+    params: idParamsSchema,
+  },
   responses: {
     200: {
       description: 'Application details',
@@ -146,6 +153,9 @@ registry.registerPath({
   tags: ['Applications'],
   summary: 'Approve an application (landlord only)',
   security: [{ bearerAuth: [] }],
+  request: {
+    params: idParamsSchema,
+  },
   responses: {
     200: {
       description: 'Application approved; property reserved',
@@ -165,6 +175,9 @@ registry.registerPath({
   tags: ['Applications'],
   summary: 'Reject an application (landlord only)',
   security: [{ bearerAuth: [] }],
+  request: {
+    params: idParamsSchema,
+  },
   responses: {
     200: {
       description: 'Application rejected',
@@ -184,6 +197,9 @@ registry.registerPath({
   tags: ['Applications'],
   summary: 'Mark property as rented for approved application (landlord only)',
   security: [{ bearerAuth: [] }],
+  request: {
+    params: idParamsSchema,
+  },
   responses: {
     200: {
       description: 'Property marked as rented',
@@ -203,6 +219,9 @@ registry.registerPath({
   tags: ['Applications'],
   summary: 'Withdraw a pending application (tenant only)',
   security: [{ bearerAuth: [] }],
+  request: {
+    params: idParamsSchema,
+  },
   responses: {
     200: {
       description: 'Application withdrawn',
@@ -244,6 +263,9 @@ registry.registerPath({
   tags: ['Applications'],
   summary: 'Get application by id (admin only)',
   security: [{ bearerAuth: [] }],
+  request: {
+    params: idParamsSchema,
+  },
   responses: {
     200: {
       description: 'Application details',
@@ -263,6 +285,9 @@ registry.registerPath({
   tags: ['Applications'],
   summary: 'Cancel an application (admin only)',
   security: [{ bearerAuth: [] }],
+  request: {
+    params: idParamsSchema,
+  },
   responses: {
     200: {
       description: 'Application cancelled',
