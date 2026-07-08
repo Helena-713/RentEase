@@ -1,0 +1,39 @@
+:root {
+  --color-bg: #f8f9fa;
+  --color-surface: #ffffff;
+  --color-text: #1a1a2e;
+  --color-text-muted: #5a6270;
+  --color-border: #e2e8f0;
+  --color-primary: #0d6e6e;
+  --color-primary-hover: #0a5858;
+  --color-landlord: #2c5282;
+  --color-landlord-hover: #234168;
+  --color-admin: #2d3748;
+  --color-admin-hover: #1a202c;
+  --color-success: #276749;
+  --color-success-bg: #c6f6d5;
+  --color-warning: #975a16;
+  --color-warning-bg: #fefcbf;
+  --color-danger: #c53030;
+  --color-danger-bg: #fed7d7;
+  --color-info: #2b6cb0;
+  --color-info-bg: #bee3f8;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --max-width: 1200px;
+  --nav-height: 64px;
+}
+
+.portal-tenant { --portal-accent: var(--color-primary); --portal-accent-hover: var(--color-primary-hover); }
+.portal-landlord { --portal-accent: var(--color-landlord); --portal-accent-hover: var(--color-landlord-hover); }
+.portal-admin { --portal-accent: var(--color-admin); --portal-accent-hover: var(--color-admin-hover); }

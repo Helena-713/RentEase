@@ -326,6 +326,25 @@ Changing a Zod schema updates both validation and Swagger docs.
    npm run db:migrate
    ```
 
+## Frontend
+
+Vanilla HTML/CSS/JS portals in `frontend/` — fully standalone from the API. Axios is loaded via CDN.
+
+1. Start the API: `npm run dev` (runs at `http://localhost:3000`)
+2. Serve the frontend separately, e.g. `npx serve frontend -p 8080`
+3. Open the landing page at `http://localhost:8080/`
+
+| Portal | Path |
+|--------|------|
+| Landing | `/` |
+| Tenant | `/tenant/` |
+| Landlord | `/landlord/` |
+| Admin | `/admin/` |
+
+The API base URL defaults to `http://localhost:3000` (see `frontend/js/config.js`). CORS is enabled on the API.
+
+Use the seeded admin account to test the admin portal: `admin@rentease.com` / `admin_password`.
+
 ## Scripts
 
 | Script                    | Description              |

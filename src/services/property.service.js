@@ -35,6 +35,12 @@ const amenityInclude = {
   attributes: ['id', 'name'],
 };
 
+const landlordInclude = {
+  model: User,
+  as: 'landlord',
+  attributes: ['id', 'firstName', 'lastName', 'email', 'phone'],
+};
+
 const sanitizeLandlordSummary = (landlord) => ({
   id: landlord.id,
   firstName: landlord.firstName,
@@ -221,14 +227,14 @@ const listPublic = async ({ page, limit }) => {
 const getPublicById = async (propertyId) => {
   const property = await Property.findOne({
     where: { id: propertyId, isApproved: true },
-    include: [imageInclude, amenityInclude],
+    include: [imageInclude, amenityInclude, landlordInclude],
   });
 
   if (!property) {
     throw new AppError('Property not found', 404);
   }
 
-  return sanitizeProperty(property);
+  return sanitizeProperty(property, { includeLandlord: true });
 };
 
 const getByIdForOwner = async (propertyId, landlordId) => {
