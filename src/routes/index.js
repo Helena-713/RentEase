@@ -9,6 +9,7 @@ router.use('/properties', require('./property.routes'));
 router.use('/amenities', require('./amenity.routes'));
 router.use('/applications', require('./application.routes'));
 router.use('/reviews', require('./review.routes'));
+router.use('/conversations', require('./conversation.routes'));
 
 router.get('/health', (req, res) => {
   res.status(200).json({

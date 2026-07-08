@@ -99,6 +99,10 @@ Property.associate = (models) => {
     as: 'reviews',
     foreignKey: 'propertyId',
   });
+  Property.hasMany(models.Conversation, {
+    as: 'conversations',
+    foreignKey: 'propertyId',
+  });
 };
 
 module.exports = Property;

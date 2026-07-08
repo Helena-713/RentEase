@@ -101,6 +101,8 @@ seeders/                # Sequelize seeders
 | `property_amenities` | Many-to-many property ↔ amenity links |
 | `applications` | Tenant applications for properties |
 | `reviews` | Post-rental reviews between tenant and landlord |
+| `conversations` | Property-scoped chat threads between tenant and landlord |
+| `messages` | Individual messages within a conversation |
 
 ## Key Business Flows
 
@@ -126,6 +128,13 @@ seeders/                # Sequelize seeders
 - Landlord reviews tenant: `targetType: TENANT`
 - Reviews are only allowed after a rental is completed (step 4 above)
 - One review per direction per property per reviewer/reviewee pair
+
+**Messaging**
+
+- Tenant starts a conversation via `POST /api/conversations` with a `propertyId` (approved property)
+- One conversation per tenant + landlord + property combination
+- Messaging is independent of applying — tenants can message without submitting an application
+- Both tenant and landlord can send messages; either party can mark the other's messages as read
 
 ## API Documentation (Swagger)
 
@@ -221,6 +230,18 @@ All routes are prefixed with `/api`. Paginated list endpoints accept `?page=1&li
 | GET | `/reviews/received` | JWT | List reviews about me (paginated) |
 | GET | `/reviews` | Admin | List all reviews (paginated) |
 | GET | `/reviews/:id` | Admin | Get review by id |
+
+### Conversations
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/conversations` | Tenant | Get or create conversation for a property |
+| GET | `/conversations/mine` | Tenant | List tenant conversations (paginated) |
+| GET | `/conversations/landlord` | Landlord | List landlord conversations (paginated) |
+| GET | `/conversations/:id` | Participant | Get conversation by id |
+| POST | `/conversations/:id/messages` | Participant | Send a message |
+| GET | `/conversations/:id/messages` | Participant | List messages (paginated, newest first) |
+| PATCH | `/conversations/:id/read` | Participant | Mark other party's messages as read |
 
 ## Example Requests
 
@@ -325,25 +346,6 @@ Changing a Zod schema updates both validation and Swagger docs.
    ```bash
    npm run db:migrate
    ```
-
-## Frontend
-
-Vanilla HTML/CSS/JS portals in `frontend/` — fully standalone from the API. Axios is loaded via CDN.
-
-1. Start the API: `npm run dev` (runs at `http://localhost:3000`)
-2. Serve the frontend separately, e.g. `npx serve frontend -p 8080`
-3. Open the landing page at `http://localhost:8080/`
-
-| Portal | Path |
-|--------|------|
-| Landing | `/` |
-| Tenant | `/tenant/` |
-| Landlord | `/landlord/` |
-| Admin | `/admin/` |
-
-The API base URL defaults to `http://localhost:3000` (see `frontend/js/config.js`). CORS is enabled on the API.
-
-Use the seeded admin account to test the admin portal: `admin@rentease.com` / `admin_password`.
 
 ## Scripts
 
