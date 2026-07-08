@@ -62,7 +62,7 @@ RE.landlordPages.propertyEdit = async function (app, params) {
               </div>`).join('') || '<p class="meta">No images</p>'}
           </div>
           <form id="img-form" style="margin-top:1rem">
-            <div class="form-group"><label>Add Images</label><input type="file" name="propertyImages" accept="image/*" multiple></div>
+            <div class="form-group"><label>Add Images</label><div id="property-images-picker"></div></div>
             <button type="submit" class="btn btn-secondary btn-sm">Upload</button>
           </form>
         </div></div>
@@ -111,13 +111,32 @@ RE.landlordPages.propertyEdit = async function (app, params) {
     } catch (err) { RE.ui.toast(RE.api.handleError(err).message, 'error'); }
   };
 
+  const maxNewImages = Math.max(0, 10 - (property.images?.length || 0));
+  const imagePicker = RE.ui.mountStagedImagePicker(
+    app.querySelector('#property-images-picker'),
+    {
+      maxFiles: maxNewImages,
+      emptyText: maxNewImages > 0
+        ? 'No images staged yet. Click Add images to choose files.'
+        : 'Maximum images reached.',
+    }
+  );
+
   app.querySelector('#img-form').onsubmit = async (e) => {
     e.preventDefault();
+    const imageFiles = imagePicker.getFiles();
+
+    if (!imageFiles.length) {
+      RE.ui.toast('Please add at least one image to upload.', 'error');
+      return;
+    }
+
     const fd = new FormData();
-    Array.from(e.target.propertyImages.files).forEach((f) => fd.append('propertyImages', f));
+    imageFiles.forEach((f) => fd.append('propertyImages', f));
     try {
       await RE.api.properties.update(params.id, fd);
       RE.ui.toast('Images uploaded', 'success');
+      imagePicker.clear();
       RE.landlordPages.propertyEdit(app, params);
     } catch (err) { RE.ui.toast(RE.api.handleError(err).message, 'error'); }
   };

@@ -38,7 +38,10 @@ RE.landlordPages.properties = async function (app, params) {
             <div class="form-group"><label>Bathrooms</label><input type="number" name="bathrooms" min="0" required></div>
             <div class="form-group"><label>Area (sqft)</label><input type="number" name="areaSqft" min="1" required></div>
           </div>
-          <div class="form-group"><label>Images (up to 10)</label><input type="file" name="propertyImages" accept="image/*" multiple></div>
+          <div class="form-group">
+            <label>Images (up to 10)</label>
+            <div id="property-images-picker"></div>
+          </div>
           ${amenities.length ? `<div class="form-group"><label>Amenities</label><div class="chip-list" id="amenity-chips">${amenities.map((a) => `<label class="chip"><input type="checkbox" name="amenityIds" value="${a.id}" style="display:none"><span>${RE.utils.escapeHtml(a.name)}</span></label>`).join('')}</div></div>` : ''}
           <button type="submit" class="btn btn-primary">Create Property</button>
         </form>
@@ -52,14 +55,31 @@ RE.landlordPages.properties = async function (app, params) {
       };
     });
 
+    const MAX_PROPERTY_IMAGES = 10;
+    const imagePicker = RE.ui.mountStagedImagePicker(
+      app.querySelector('#property-images-picker'),
+      { maxFiles: MAX_PROPERTY_IMAGES, emptyText: 'No images selected yet. Click Add images to choose files.' }
+    );
+
     app.querySelector('#create-form').onsubmit = async (e) => {
       e.preventDefault();
       const form = e.target;
+      const imageFiles = imagePicker.getFiles();
+
+      if (!imageFiles.length) {
+        RE.ui.toast('Please select at least one property image.', 'error');
+        return;
+      }
+      if (imageFiles.length > MAX_PROPERTY_IMAGES) {
+        RE.ui.toast(`Maximum ${MAX_PROPERTY_IMAGES} images allowed.`, 'error');
+        return;
+      }
+
       const fd = new FormData();
       ['title','description','address','city','state','price','propertyType','bedrooms','bathrooms','areaSqft'].forEach((f) => {
         fd.append(f, form[f].value);
       });
-      Array.from(form.propertyImages.files).forEach((f) => fd.append('propertyImages', f));
+      imageFiles.forEach((f) => fd.append('propertyImages', f));
       try {
         const res = await RE.api.properties.create(fd);
         const amenityIds = Array.from(form.querySelectorAll('input[name="amenityIds"]:checked')).map((c) => c.value);

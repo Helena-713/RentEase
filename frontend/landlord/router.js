@@ -46,4 +46,14 @@ RE.landlordRouter = RE.router.create([
     guard: () => RE.auth.requireRole('LAND_LORD'),
     render: RE.landlordPages.profile,
   },
+  {
+    path: '/messages',
+    guard: () => RE.auth.requireRole('LAND_LORD'),
+    render: RE.landlordPages.messages,
+  },
+  {
+    path: '/messages/:id',
+    guard: () => RE.auth.requireRole('LAND_LORD'),
+    render: RE.landlordPages.messages,
+  },
 ]);

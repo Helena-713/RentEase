@@ -24,6 +24,7 @@ async function renderNav() {
     const navItems = [
       '<a href="#/">My Properties</a>',
       '<a href="#/applications">Applications</a>',
+      '<a href="#/messages" class="nav-link-with-badge">Messages<span class="nav-unread-badge" hidden></span></a>',
     ];
     if (showVerification) {
       navItems.push('<a href="#/verification">Verification</a>');
@@ -43,7 +44,12 @@ async function renderNav() {
        <a href="#/register" class="btn btn-primary btn-sm">Register</a>`;
 
   const logoutBtn = document.getElementById('logout-btn');
-  if (logoutBtn) logoutBtn.onclick = () => { RE.auth.logout(); renderNav(); RE.landlordRouter.start(); };
+  if (logoutBtn) logoutBtn.onclick = () => {
+    RE.messages.stopPolling();
+    RE.auth.logout();
+    renderNav();
+    RE.landlordRouter.start();
+  };
 
   const hash = location.hash.slice(1) || '/';
   links.querySelectorAll('a').forEach((a) => {
@@ -51,10 +57,21 @@ async function renderNav() {
     if (hash === href || (href !== '/' && hash.startsWith(href))) a.classList.add('active');
   });
   RE.ui.setupMobileNav();
+  if (loggedIn) {
+    RE.messages.updateNavBadge();
+    RE.messages.startBadgePolling();
+  } else {
+    RE.messages.stopPolling();
+  }
 }
 
 window.addEventListener('hashchange', () => {
   RE.ui.closeMobileNav();
+  const hash = location.hash.slice(1) || '/';
+  if (!hash.startsWith('/messages')) {
+    RE.messages.stopPolling('inbox');
+    RE.messages.stopPolling('thread');
+  }
   renderNav();
 });
 window.addEventListener('resize', () => {

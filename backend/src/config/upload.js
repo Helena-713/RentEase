@@ -6,9 +6,10 @@ const {
   PROPERTY_IMAGES_PUBLIC_PATH,
 } = require('../constants/upload');
 
-const UPLOAD_DIR = path.resolve('uploads/profiles');
-const VERIFICATION_DOCUMENT_DIR = path.resolve('uploads/landlord-verifications');
-const PROPERTY_IMAGES_DIR = path.resolve('uploads/properties');
+const UPLOAD_ROOT = path.resolve(__dirname, '../../uploads');
+const UPLOAD_DIR = path.join(UPLOAD_ROOT, 'profiles');
+const VERIFICATION_DOCUMENT_DIR = path.join(UPLOAD_ROOT, 'landlord-verifications');
+const PROPERTY_IMAGES_DIR = path.join(UPLOAD_ROOT, 'properties');
 
 for (const dir of [UPLOAD_DIR, VERIFICATION_DOCUMENT_DIR, PROPERTY_IMAGES_DIR]) {
   if (!fs.existsSync(dir)) {

@@ -18,4 +18,14 @@ RE.tenantRouter = RE.router.create([
     guard: () => RE.auth.requireRole('TENANT'),
     render: RE.tenantPages.profile,
   },
+  {
+    path: '/messages',
+    guard: () => RE.auth.requireRole('TENANT'),
+    render: RE.tenantPages.messages,
+  },
+  {
+    path: '/messages/:id',
+    guard: () => RE.auth.requireRole('TENANT'),
+    render: RE.tenantPages.messages,
+  },
 ]);

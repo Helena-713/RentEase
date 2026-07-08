@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const pinoHttp = require('pino-http');
@@ -11,7 +12,7 @@ const app = express();
 app.use(pinoHttp({ logger }));
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static(path.resolve(__dirname, '../uploads')));
 
 app.use('/api', routes);
 

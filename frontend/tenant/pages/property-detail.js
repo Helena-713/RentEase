@@ -104,6 +104,12 @@ RE.tenantPages.propertyDetail = async function (app, params) {
                 <p class="meta">${RE.utils.escapeHtml(landlord.phone)}</p>
               </div>
             </div>` : ''}
+          ${isTenant && landlord ? `
+            <div class="card">
+              <div class="card-body">
+                <button type="button" class="btn btn-secondary btn-block" id="message-landlord-btn">Message Landlord</button>
+              </div>
+            </div>` : ''}
           <div class="card">
             <div class="card-body">
               <h3 class="property-section-title">Apply for this property</h3>
@@ -137,6 +143,18 @@ RE.tenantPages.propertyDetail = async function (app, params) {
   RE.ui.bindZoomableImages(app, '.property-hero img, .property-gallery-thumbs img');
 
   if (isTenant) {
+    const msgBtn = app.querySelector('#message-landlord-btn');
+    if (msgBtn) {
+      msgBtn.onclick = async () => {
+        try {
+          const res = await RE.api.conversations.create({ propertyId: property.id });
+          location.hash = `#/messages/${res.data.id}`;
+        } catch (err) {
+          RE.ui.toast(RE.api.handleError(err).message, 'error');
+        }
+      };
+    }
+
     const form = app.querySelector('#apply-form');
     form.onsubmit = async (e) => {
       e.preventDefault();

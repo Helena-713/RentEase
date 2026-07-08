@@ -29,7 +29,11 @@ RE.api = (function () {
   function setLoginPath(path) { loginPath = path; }
 
   async function request(method, url, data, config = {}) {
-    const res = await getClient().request({ method, url, data, ...config });
+    const headers = { ...(config.headers || {}) };
+    if (data instanceof FormData) {
+      delete headers['Content-Type'];
+    }
+    const res = await getClient().request({ method, url, data, ...config, headers });
     return res.data;
   }
 
@@ -47,24 +51,16 @@ RE.api = (function () {
 
     auth: {
       login: (body) => request('POST', '/auth/login', body),
-      register: (formData) => request('POST', '/auth/register', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      }),
+      register: (formData) => request('POST', '/auth/register', formData),
     },
 
     users: {
       me: () => request('GET', '/users/me'),
-      updateMe: (formData) => request('PATCH', '/users/me', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      }),
+      updateMe: (formData) => request('PATCH', '/users/me', formData),
       list: (q) => request('GET', '/users' + RE.utils.buildQuery(q)),
-      update: (id, formData) => request('PATCH', `/users/${id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      }),
+      update: (id, formData) => request('PATCH', `/users/${id}`, formData),
       reviews: (id, q) => request('GET', `/users/${id}/reviews` + RE.utils.buildQuery(q)),
-      uploadVerification: (formData) => request('PATCH', '/users/me/landlord-verification', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      }),
+      uploadVerification: (formData) => request('PATCH', '/users/me/landlord-verification', formData),
     },
 
     properties: {
@@ -72,12 +68,8 @@ RE.api = (function () {
       public: (id) => request('GET', `/properties/public/${id}`),
       mine: (q) => request('GET', '/properties/mine' + RE.utils.buildQuery(q)),
       get: (id) => request('GET', `/properties/${id}`),
-      create: (formData) => request('POST', '/properties', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      }),
-      update: (id, formData) => request('PATCH', `/properties/${id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      }),
+      create: (formData) => request('POST', '/properties', formData),
+      update: (id, formData) => request('PATCH', `/properties/${id}`, formData),
       pending: (q) => request('GET', '/properties/pending' + RE.utils.buildQuery(q)),
       review: (id, body) => request('PATCH', `/properties/${id}/review`, body),
       setAvailable: (id) => request('PATCH', `/properties/${id}/available`),
@@ -117,6 +109,16 @@ RE.api = (function () {
     verifications: {
       pending: (q) => request('GET', '/landlord-verifications/pending' + RE.utils.buildQuery(q)),
       review: (id, body) => request('PATCH', `/landlord-verifications/${id}/review`, body),
+    },
+
+    conversations: {
+      create: (body) => request('POST', '/conversations', body),
+      mine: (q) => request('GET', '/conversations/mine' + RE.utils.buildQuery(q)),
+      landlord: (q) => request('GET', '/conversations/landlord' + RE.utils.buildQuery(q)),
+      get: (id) => request('GET', `/conversations/${id}`),
+      messages: (id, q) => request('GET', `/conversations/${id}/messages` + RE.utils.buildQuery(q)),
+      send: (id, body) => request('POST', `/conversations/${id}/messages`, body),
+      markRead: (id) => request('PATCH', `/conversations/${id}/read`),
     },
   };
 })();

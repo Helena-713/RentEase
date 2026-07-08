@@ -192,6 +192,113 @@ RE.ui = {
     });
     return wrap;
   },
+
+  mountStagedImagePicker(container, options = {}) {
+    if (!container) {
+      return { getFiles: () => [], clear: () => {} };
+    }
+
+    const maxFiles = options.maxFiles ?? 10;
+    const emptyText = options.emptyText ?? 'No images selected yet.';
+    const stagedFiles = [];
+
+    function fileKey(file) {
+      return `${file.name}:${file.size}:${file.lastModified}`;
+    }
+
+    function render() {
+      if (maxFiles <= 0) {
+        container.innerHTML = `<p class="meta">Maximum images reached.</p>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="staged-image-picker">
+          <button type="button" class="btn btn-secondary btn-sm staged-image-add-btn">Add images</button>
+          <input type="file" class="staged-image-input" accept="image/*" multiple hidden>
+          <ul class="staged-image-list"></ul>
+          <p class="meta staged-image-summary"></p>
+        </div>`;
+
+      const addBtn = container.querySelector('.staged-image-add-btn');
+      const fileInput = container.querySelector('.staged-image-input');
+      const listEl = container.querySelector('.staged-image-list');
+      const summaryEl = container.querySelector('.staged-image-summary');
+
+      function updateSummary() {
+        if (!stagedFiles.length) {
+          summaryEl.textContent = emptyText;
+          return;
+        }
+        const label = stagedFiles.length === 1
+          ? '1 image staged'
+          : `${stagedFiles.length} images staged`;
+        summaryEl.textContent = `${label} (${stagedFiles.length}/${maxFiles})`;
+      }
+
+      function renderList() {
+        listEl.innerHTML = stagedFiles.map((file, index) => `
+          <li class="staged-image-item">
+            <span class="staged-image-name">${RE.utils.escapeHtml(file.name)}</span>
+            <button type="button" class="btn btn-secondary btn-sm staged-image-remove" data-index="${index}">Remove</button>
+          </li>`).join('');
+
+        listEl.querySelectorAll('.staged-image-remove').forEach((btn) => {
+          btn.onclick = () => {
+            stagedFiles.splice(Number(btn.dataset.index), 1);
+            renderList();
+            updateSummary();
+          };
+        });
+
+        addBtn.disabled = stagedFiles.length >= maxFiles;
+        updateSummary();
+      }
+
+      addBtn.onclick = () => fileInput.click();
+
+      fileInput.onchange = () => {
+        const incoming = Array.from(fileInput.files || []);
+        fileInput.value = '';
+
+        if (!incoming.length) return;
+
+        const existing = new Set(stagedFiles.map(fileKey));
+        let rejected = 0;
+
+        for (const file of incoming) {
+          const key = fileKey(file);
+          if (existing.has(key)) continue;
+
+          if (stagedFiles.length >= maxFiles) {
+            rejected += 1;
+            continue;
+          }
+
+          stagedFiles.push(file);
+          existing.add(key);
+        }
+
+        if (rejected > 0) {
+          RE.ui.toast(`Maximum ${maxFiles} images allowed.`, 'error');
+        }
+
+        renderList();
+      };
+
+      renderList();
+    }
+
+    render();
+
+    return {
+      getFiles: () => [...stagedFiles],
+      clear: () => {
+        stagedFiles.length = 0;
+        render();
+      },
+    };
+  },
 };
 
 RE.router = {
