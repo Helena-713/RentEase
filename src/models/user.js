@@ -58,6 +58,10 @@ User.associate = (models) => {
   User.hasOne(models.LandlordVerification, {
     foreignKey: 'userId',
   });
+  User.hasMany(models.Property, {
+    as: 'properties',
+    foreignKey: 'landlordId',
+  });
 };
 
 module.exports = User;
