@@ -1,6 +1,7 @@
 require('./paths/health.path');
 require('./paths/auth.path');
 require('./paths/user.path');
+require('./paths/landlordVerification.path');
 
 const { OpenApiGeneratorV3 } = require('@asteasolutions/zod-to-openapi');
 const registry = require('./registry');

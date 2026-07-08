@@ -1,10 +1,12 @@
-const { User, sequelize } = require('../models');
+const { User, LandlordVerification, sequelize } = require('../models');
 const AppError = require('../utils/AppError');
 const logger = require('../config/logger');
 const { hashPassword, comparePassword } = require('../utils/password');
 const { signToken } = require('../utils/jwt');
 const { deleteProfileImageFile } = require('../config/upload');
 const { sanitizeUser } = require('./user.service');
+const { UserRole } = require('../constants/userRoles');
+const { VerificationStatus } = require('../constants/verificationStatus');
 
 const issueAuthResponse = (user) => {
   const { token, expiresAt } = signToken({
@@ -40,6 +42,16 @@ const register = async (data, { uploadedFilename, log: requestLog } = {}) => {
       },
       { transaction }
     );
+
+    if (data.role === UserRole.LAND_LORD) {
+      await LandlordVerification.create(
+        {
+          userId: user.id,
+          status: VerificationStatus.PENDING,
+        },
+        { transaction }
+      );
+    }
 
     await transaction.commit();
 

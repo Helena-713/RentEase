@@ -2,9 +2,11 @@ const express = require('express');
 const authenticate = require('../middleware/authenticate');
 const authorizeAdmin = require('../middleware/authorizeAdmin');
 const uploadProfileImage = require('../middleware/uploadProfileImage');
+const uploadVerificationDocument = require('../middleware/uploadVerificationDocument');
 const validate = require('../middleware/validate');
 const asyncHandler = require('../utils/asyncHandler');
 const userController = require('../controllers/user.controller');
+const landlordVerificationController = require('../controllers/landlordVerification.controller');
 const {
   updateMeSchema,
   updateUserByIdSchema,
@@ -13,6 +15,13 @@ const {
 const router = express.Router();
 
 router.get('/me', authenticate, asyncHandler(userController.getMe));
+
+router.patch(
+  '/me/landlord-verification',
+  authenticate,
+  uploadVerificationDocument,
+  asyncHandler(landlordVerificationController.updateMe)
+);
 
 router.patch(
   '/me',

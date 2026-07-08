@@ -54,4 +54,10 @@ const User = sequelize.define(
   }
 );
 
+User.associate = (models) => {
+  User.hasOne(models.LandlordVerification, {
+    foreignKey: 'userId',
+  });
+};
+
 module.exports = User;

@@ -2,6 +2,7 @@ const UPLOAD_MAX_FILE_SIZE_MB = 5;
 const UPLOAD_MAX_FILE_SIZE = UPLOAD_MAX_FILE_SIZE_MB * 1024 * 1024;
 
 const UPLOAD_PUBLIC_PATH = '/uploads/profiles';
+const VERIFICATION_DOCUMENT_PUBLIC_PATH = '/uploads/landlord-verifications';
 
 const ALLOWED_IMAGE_TYPES = [
   'image/jpeg',
@@ -10,9 +11,16 @@ const ALLOWED_IMAGE_TYPES = [
   'image/gif',
 ];
 
+const ALLOWED_VERIFICATION_DOCUMENT_TYPES = [
+  ...ALLOWED_IMAGE_TYPES,
+  'application/pdf',
+];
+
 module.exports = {
   UPLOAD_MAX_FILE_SIZE_MB,
   UPLOAD_MAX_FILE_SIZE,
   UPLOAD_PUBLIC_PATH,
+  VERIFICATION_DOCUMENT_PUBLIC_PATH,
   ALLOWED_IMAGE_TYPES,
+  ALLOWED_VERIFICATION_DOCUMENT_TYPES,
 };

@@ -1,11 +1,17 @@
 const path = require('path');
 const fs = require('fs');
-const { UPLOAD_PUBLIC_PATH } = require('../constants/upload');
+const {
+  UPLOAD_PUBLIC_PATH,
+  VERIFICATION_DOCUMENT_PUBLIC_PATH,
+} = require('../constants/upload');
 
 const UPLOAD_DIR = path.resolve('uploads/profiles');
+const VERIFICATION_DOCUMENT_DIR = path.resolve('uploads/landlord-verifications');
 
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+for (const dir of [UPLOAD_DIR, VERIFICATION_DOCUMENT_DIR]) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
 }
 
 const buildProfileImagePath = (filename) =>
@@ -25,9 +31,30 @@ const deleteProfileImageFile = (filename) => {
   }
 };
 
+const buildVerificationDocumentPath = (filename) =>
+  `${VERIFICATION_DOCUMENT_PUBLIC_PATH}/${filename}`;
+
+const getVerificationDocumentFilename = (publicPath) => {
+  if (!publicPath) {
+    return null;
+  }
+  return path.basename(publicPath);
+};
+
+const deleteVerificationDocumentFile = (filename) => {
+  const filePath = path.join(VERIFICATION_DOCUMENT_DIR, filename);
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+};
+
 module.exports = {
   UPLOAD_DIR,
+  VERIFICATION_DOCUMENT_DIR,
   buildProfileImagePath,
   getProfileImageFilename,
   deleteProfileImageFile,
+  buildVerificationDocumentPath,
+  getVerificationDocumentFilename,
+  deleteVerificationDocumentFile,
 };
