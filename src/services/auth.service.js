@@ -4,17 +4,7 @@ const logger = require('../config/logger');
 const { hashPassword, comparePassword } = require('../utils/password');
 const { signToken } = require('../utils/jwt');
 const { deleteProfileImageFile } = require('../config/upload');
-
-const sanitizeUser = (user) => ({
-  id: user.id,
-  firstName: user.firstName,
-  lastName: user.lastName,
-  email: user.email,
-  phone: user.phone,
-  role: user.role,
-  profileImage: user.profileImage,
-  isActive: user.isActive,
-});
+const { sanitizeUser } = require('./user.service');
 
 const issueAuthResponse = (user) => {
   const { token, expiresAt } = signToken({

@@ -11,6 +11,13 @@ if (!fs.existsSync(UPLOAD_DIR)) {
 const buildProfileImagePath = (filename) =>
   `${UPLOAD_PUBLIC_PATH}/${filename}`;
 
+const getProfileImageFilename = (publicPath) => {
+  if (!publicPath) {
+    return null;
+  }
+  return path.basename(publicPath);
+};
+
 const deleteProfileImageFile = (filename) => {
   const filePath = path.join(UPLOAD_DIR, filename);
   if (fs.existsSync(filePath)) {
@@ -21,5 +28,6 @@ const deleteProfileImageFile = (filename) => {
 module.exports = {
   UPLOAD_DIR,
   buildProfileImagePath,
+  getProfileImageFilename,
   deleteProfileImageFile,
 };

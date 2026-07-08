@@ -11,4 +11,6 @@ const signToken = (payload) => {
   };
 };
 
-module.exports = { signToken };
+const verifyToken = (token) => jwt.verify(token, secret);
+
+module.exports = { signToken, verifyToken };
