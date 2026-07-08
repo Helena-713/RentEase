@@ -3,6 +3,20 @@ const { successResponseSchema } = require('./common.schema');
 const { paginationQuerySchema, paginatedResponseSchema } = require('./pagination.schema');
 const { authUserSchema } = require('./auth.schema');
 const { phoneSchema, strongPasswordSchema } = require('./validators');
+const { VERIFICATION_STATUSES } = require('../constants/verificationStatus');
+
+const landlordVerificationSummarySchema = z
+  .object({
+    status: z.enum(VERIFICATION_STATUSES),
+    rejectionReason: z.string().nullable(),
+  })
+  .openapi('LandlordVerificationSummary');
+
+const meUserSchema = authUserSchema
+  .extend({
+    landlordVerification: landlordVerificationSummarySchema.optional(),
+  })
+  .openapi('MeUser');
 
 const updateFieldsSchema = z.object({
   firstName: z.string().min(1).optional(),
@@ -37,7 +51,7 @@ const updateUserByIdSchema = z.object({
   body: updateUserByIdBodySchema,
 });
 
-const userResponseSchema = successResponseSchema(authUserSchema).openapi(
+const userResponseSchema = successResponseSchema(meUserSchema).openapi(
   'UserResponse'
 );
 
@@ -61,6 +75,8 @@ module.exports = {
   updateUserByIdBodySchema,
   updateMeSchema,
   updateUserByIdSchema,
+  meUserSchema,
+  landlordVerificationSummarySchema,
   userResponseSchema,
   userPaginatedResponseSchema,
   listUsersSchema,

@@ -1,6 +1,7 @@
-const { User, sequelize } = require('../models');
+const { User, LandlordVerification, sequelize } = require('../models');
 const AppError = require('../utils/AppError');
 const logger = require('../config/logger');
+const { UserRole } = require('../constants/userRoles');
 const { getPaginationOptions } = require('../utils/pagination');
 const { hashPassword, comparePassword } = require('../utils/password');
 const {
@@ -98,7 +99,22 @@ const getMe = async (userId) => {
     throw new AppError('User not found', 404);
   }
 
-  return sanitizeUser(user);
+  const result = sanitizeUser(user);
+
+  if (user.role === UserRole.LAND_LORD) {
+    const verification = await LandlordVerification.findOne({
+      where: { userId: user.id },
+    });
+
+    if (verification) {
+      result.landlordVerification = {
+        status: verification.status,
+        rejectionReason: verification.rejectionReason,
+      };
+    }
+  }
+
+  return result;
 };
 
 const listUsers = async ({ page, limit }) => {
