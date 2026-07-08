@@ -95,6 +95,10 @@ Property.associate = (models) => {
     as: 'applications',
     foreignKey: 'propertyId',
   });
+  Property.hasMany(models.Review, {
+    as: 'reviews',
+    foreignKey: 'propertyId',
+  });
 };
 
 module.exports = Property;

@@ -1,5 +1,6 @@
 const registry = require('../registry');
 const { userResponseSchema, userPaginatedResponseSchema } = require('../../schemas/user.schema');
+const { reviewPaginatedResponseSchema } = require('../../schemas/review.schema');
 const { paginationQuerySchema } = require('../../schemas/pagination.schema');
 const { errorResponseSchema } = require('../../schemas/common.schema');
 
@@ -192,6 +193,42 @@ registry.registerPath({
     },
     403: {
       description: 'Forbidden',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: 'User not found',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+  },
+});
+
+registry.registerPath({
+  method: 'get',
+  path: '/users/{id}/reviews',
+  tags: ['Users'],
+  summary: 'List reviews received by a user (public, paginated)',
+  request: {
+    query: paginationQuerySchema,
+  },
+  responses: {
+    200: {
+      description: 'Reviews received by user',
+      content: {
+        'application/json': {
+          schema: reviewPaginatedResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Validation failed',
       content: {
         'application/json': {
           schema: errorResponseSchema,

@@ -11,6 +11,7 @@ const {
   updateMeSchema,
   updateUserByIdSchema,
   listUsersSchema,
+  listUserReviewsSchema,
 } = require('../schemas/user.schema');
 
 const router = express.Router();
@@ -23,6 +24,12 @@ router.get(
   authorizeAdmin,
   validate(listUsersSchema),
   asyncHandler(userController.listUsers)
+);
+
+router.get(
+  '/:id/reviews',
+  validate(listUserReviewsSchema),
+  asyncHandler(userController.listReviews)
 );
 
 router.patch(

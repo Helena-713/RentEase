@@ -319,7 +319,7 @@ registry.registerPath({
   method: 'patch',
   path: '/properties/{id}/available',
   tags: ['Properties'],
-  summary: 'Mark a rented property as available (landlord owner only)',
+  summary: 'Mark a rented property as available and complete the rental (landlord owner only)',
   security: [{ bearerAuth: [] }],
   responses: {
     200: {

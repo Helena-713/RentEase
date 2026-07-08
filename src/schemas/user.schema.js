@@ -49,6 +49,13 @@ const listUsersSchema = z.object({
   query: paginationQuerySchema,
 });
 
+const listUserReviewsSchema = z.object({
+  params: z.object({
+    id: z.string().uuid(),
+  }),
+  query: paginationQuerySchema,
+});
+
 module.exports = {
   updateMeBodySchema,
   updateUserByIdBodySchema,
@@ -57,4 +64,5 @@ module.exports = {
   userResponseSchema,
   userPaginatedResponseSchema,
   listUsersSchema,
+  listUserReviewsSchema,
 };

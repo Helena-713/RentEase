@@ -1,5 +1,6 @@
 const AppError = require('../utils/AppError');
 const userService = require('../services/user.service');
+const reviewService = require('../services/review.service');
 const { buildProfileImagePath } = require('../config/upload');
 const { sendPaginatedResponse } = require('../utils/pagination');
 
@@ -65,4 +66,10 @@ const updateById = async (req, res) => {
   });
 };
 
-module.exports = { getMe, listUsers, updateMe, updateById };
+const listReviews = async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await reviewService.listForUser(req.params.id, { page, limit });
+  sendPaginatedResponse(res, { ...result, page, limit });
+};
+
+module.exports = { getMe, listUsers, updateMe, updateById, listReviews };

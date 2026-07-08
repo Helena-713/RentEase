@@ -1,5 +1,6 @@
 const {
   Amenity,
+  Application,
   Property,
   PropertyAmenity,
   PropertyImage,
@@ -10,6 +11,7 @@ const AppError = require('../utils/AppError');
 const logger = require('../config/logger');
 const { UserRole } = require('../constants/userRoles');
 const { PropertyStatus } = require('../constants/propertyStatus');
+const { ApplicationStatus } = require('../constants/applicationStatus');
 const { MAX_PROPERTY_IMAGES } = require('../constants/upload');
 const { getPaginationOptions } = require('../utils/pagination');
 const {
@@ -507,7 +509,33 @@ const markAvailable = async (propertyId, landlordId) => {
     throw new AppError('Only rented properties can be marked as available', 409);
   }
 
-  await property.update({ status: PropertyStatus.AVAILABLE });
+  const application = await Application.findOne({
+    where: {
+      propertyId,
+      status: ApplicationStatus.APPROVED,
+    },
+  });
+
+  if (!application) {
+    throw new AppError('No active rental found for this property', 409);
+  }
+
+  const transaction = await sequelize.transaction();
+
+  try {
+    await application.update(
+      { status: ApplicationStatus.COMPLETED },
+      { transaction }
+    );
+    await property.update(
+      { status: PropertyStatus.AVAILABLE },
+      { transaction }
+    );
+    await transaction.commit();
+  } catch (err) {
+    await transaction.rollback();
+    throw err;
+  }
 
   return sanitizeProperty(property);
 };
