@@ -22,6 +22,10 @@ const Review = sequelize.define(
       type: DataTypes.UUID,
       allowNull: false,
     },
+    applicationId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+    },
     targetType: {
       type: DataTypes.ENUM(...REVIEW_TARGET_TYPES),
       allowNull: false,
@@ -57,6 +61,10 @@ Review.associate = (models) => {
   Review.belongsTo(models.Property, {
     as: 'property',
     foreignKey: 'propertyId',
+  });
+  Review.belongsTo(models.Application, {
+    as: 'application',
+    foreignKey: 'applicationId',
   });
 };
 

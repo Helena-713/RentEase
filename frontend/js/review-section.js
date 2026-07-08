@@ -5,8 +5,18 @@ RE.reviewSection = (function () {
     return RE.utils.escapeHtml(String(s ?? ''));
   }
 
-  function findForProperty(items, propertyId, targetType) {
-    return (items || []).find((r) => r.propertyId === propertyId && r.targetType === targetType) || null;
+  function findForRental(items, { propertyId, applicationId, targetType }) {
+    const list = items || [];
+    if (applicationId) {
+      return (
+        list.find((r) => r.applicationId === applicationId && r.targetType === targetType) ||
+        null
+      );
+    }
+    return (
+      list.find((r) => r.propertyId === propertyId && r.targetType === targetType) ||
+      null
+    );
   }
 
   function otherTargetType(targetType) {
@@ -20,6 +30,7 @@ RE.reviewSection = (function () {
 
   async function mount(container, opts) {
     const propertyId = opts?.propertyId;
+    const applicationId = opts?.applicationId;
     const targetType = opts?.targetType;
     const revieweeLabel = opts?.revieweeLabel || 'Leave a review';
     const receivedTargetType = opts?.receivedTargetType || otherTargetType(targetType);
@@ -46,8 +57,12 @@ RE.reviewSection = (function () {
       return;
     }
 
-    const myReview = findForProperty(mineItems, propertyId, targetType);
-    const theirReview = findForProperty(receivedItems, propertyId, receivedTargetType);
+    const myReview = findForRental(mineItems, { propertyId, applicationId, targetType });
+    const theirReview = findForRental(receivedItems, {
+      propertyId,
+      applicationId,
+      targetType: receivedTargetType,
+    });
 
     container.innerHTML = `
       <div class="card" style="margin-top:1rem"><div class="card-body">
@@ -111,6 +126,7 @@ RE.reviewSection = (function () {
       try {
         await RE.api.reviews.create({
           propertyId,
+          applicationId: applicationId || undefined,
           targetType,
           rating: parseInt(form.rating.value, 10),
           comment: form.comment.value || undefined,

@@ -5,6 +5,9 @@ RE.tenantPages.applications = async function (app, params) {
     const res = await RE.api.applications.mineById(params.id);
     const app_ = res.data;
     const prop = app_.property;
+    const canWithdraw =
+      app_.status === 'PENDING' ||
+      (app_.status === 'APPROVED' && prop?.status === 'RESERVED');
     app.innerHTML = `
       <div class="page-header">
         <a href="#/applications" class="btn btn-secondary btn-sm">&larr; Back</a>
@@ -17,7 +20,7 @@ RE.tenantPages.applications = async function (app, params) {
         <p><strong>Price:</strong> ${prop ? RE.utils.formatPrice(prop.price) : '—'}</p>
         <p><strong>Message:</strong> ${app_.message ? RE.utils.escapeHtml(app_.message) : '—'}</p>
         <p><strong>Submitted:</strong> ${RE.utils.formatDateTime(app_.createdAt)}</p>
-        ${app_.status === 'PENDING' ? '<button class="btn btn-danger" id="withdraw-btn">Withdraw Application</button>' : ''}
+        ${canWithdraw ? '<button class="btn btn-danger" id="withdraw-btn">Withdraw Application</button>' : ''}
       </div></div>`;
 
     if (app_.status === 'COMPLETED' && prop?.id) {
@@ -25,6 +28,7 @@ RE.tenantPages.applications = async function (app, params) {
       app.appendChild(reviewWrap);
       RE.reviewSection.mount(reviewWrap, {
         propertyId: prop.id,
+        applicationId: app_.id,
         targetType: 'LANDLORD',
         receivedTargetType: 'TENANT',
         revieweeLabel: 'Review your landlord',

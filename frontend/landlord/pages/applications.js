@@ -44,6 +44,7 @@ RE.landlordPages.applications = async function (app, params) {
       app.appendChild(reviewWrap);
       RE.reviewSection.mount(reviewWrap, {
         propertyId: prop.id,
+        applicationId: a.id,
         targetType: 'TENANT',
         receivedTargetType: 'LANDLORD',
         revieweeLabel: `Review ${tenant ? RE.utils.fullName(tenant) : 'your tenant'}`,

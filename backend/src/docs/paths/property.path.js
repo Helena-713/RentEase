@@ -10,7 +10,6 @@ const { paginationQuerySchema } = require('../../schemas/pagination.schema');
 const { errorResponseSchema } = require('../../schemas/common.schema');
 const { idParamsSchema, propertyImageParamsSchema } = require('../params');
 const { PROPERTY_TYPES } = require('../../constants/propertyType');
-const { PROPERTY_STATUSES } = require('../../constants/propertyStatus');
 
 const propertyMultipartSchema = {
   type: 'object',
@@ -58,7 +57,6 @@ const updatePropertyMultipartSchema = {
     bedrooms: { type: 'integer' },
     bathrooms: { type: 'integer' },
     areaSqft: { type: 'integer' },
-    status: { type: 'string', enum: PROPERTY_STATUSES },
     propertyImages: {
       type: 'array',
       items: { type: 'string', format: 'binary' },

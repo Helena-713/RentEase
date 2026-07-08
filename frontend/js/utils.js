@@ -9,7 +9,10 @@ RE.utils = {
   },
 
   formatPrice(price) {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
+    if (price == null || price === '') return '—';
+    const n = typeof price === 'number' ? price : Number(price);
+    if (!Number.isFinite(n)) return '—';
+    return `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n)} birr`;
   },
 
   formatDate(dateStr) {

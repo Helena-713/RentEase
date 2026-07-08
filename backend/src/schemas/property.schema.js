@@ -82,11 +82,13 @@ const propertyFieldsSchema = z.object({
   areaSqft: z.coerce.number().int().positive(),
 });
 
-const createPropertyBodySchema =
-  propertyFieldsSchema.openapi('CreatePropertyBody');
+const createPropertyBodySchema = propertyFieldsSchema
+  .strict()
+  .openapi('CreatePropertyBody');
 
 const updatePropertyBodySchema = propertyFieldsSchema
   .partial()
+  .strict()
   .openapi('UpdatePropertyBody');
 
 const createPropertySchema = z.object({

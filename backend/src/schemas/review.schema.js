@@ -32,6 +32,7 @@ const reviewSchema = z
     reviewerId: z.string().uuid(),
     revieweeId: z.string().uuid(),
     propertyId: z.string().uuid(),
+    applicationId: z.string().uuid().nullable().optional(),
     targetType: z.enum(REVIEW_TARGET_TYPES),
     rating: z.number().int().min(1).max(5),
     comment: z.string().nullable(),
@@ -54,6 +55,7 @@ const reviewPaginatedResponseSchema = paginatedResponseSchema(
 const createReviewBodySchema = z
   .object({
     propertyId: z.string().uuid(),
+    applicationId: z.string().uuid().optional(),
     targetType: z.enum(REVIEW_TARGET_TYPES),
     rating: z.number().int().min(1).max(5),
     comment: z.string().trim().min(1).optional(),

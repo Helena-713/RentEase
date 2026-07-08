@@ -318,7 +318,6 @@ const buildUpdatePayload = (data) => {
     'bedrooms',
     'bathrooms',
     'areaSqft',
-    'status',
   ];
 
   for (const field of fields) {

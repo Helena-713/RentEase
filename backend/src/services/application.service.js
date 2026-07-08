@@ -262,11 +262,42 @@ const withdraw = async (applicationId, tenantId) => {
     throw new AppError('Forbidden', 403);
   }
 
-  if (application.status !== ApplicationStatus.PENDING) {
-    throw new AppError('Only pending applications can be withdrawn', 409);
+  if (application.property?.status === PropertyStatus.RENTED) {
+    throw new AppError('Cannot withdraw while the property is rented', 409);
   }
 
-  await application.update({ status: ApplicationStatus.WITHDRAWN });
+  const isPending = application.status === ApplicationStatus.PENDING;
+  const isReservedApproval =
+    application.status === ApplicationStatus.APPROVED &&
+    application.property?.status === PropertyStatus.RESERVED;
+
+  if (!isPending && !isReservedApproval) {
+    throw new AppError(
+      'Only pending applications or reserved approvals can be withdrawn',
+      409
+    );
+  }
+
+  const transaction = await sequelize.transaction();
+
+  try {
+    await application.update(
+      { status: ApplicationStatus.WITHDRAWN },
+      { transaction }
+    );
+
+    if (isReservedApproval) {
+      await Property.update(
+        { status: PropertyStatus.AVAILABLE },
+        { where: { id: application.propertyId }, transaction }
+      );
+    }
+
+    await transaction.commit();
+  } catch (err) {
+    await transaction.rollback();
+    throw err;
+  }
 
   return sanitizeApplication(application, { includeProperty: true });
 };
