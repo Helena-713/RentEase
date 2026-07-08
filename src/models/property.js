@@ -91,6 +91,10 @@ Property.associate = (models) => {
     otherKey: 'amenityId',
     as: 'amenities',
   });
+  Property.hasMany(models.Application, {
+    as: 'applications',
+    foreignKey: 'propertyId',
+  });
 };
 
 module.exports = Property;

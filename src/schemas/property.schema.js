@@ -161,6 +161,10 @@ const reviewSchema = z.object({
   body: reviewBodySchema,
 });
 
+const markAvailableSchema = z.object({
+  params: propertyIdParamsSchema,
+});
+
 module.exports = {
   propertySchema,
   propertyResponseSchema,
@@ -178,4 +182,5 @@ module.exports = {
   setPropertyAmenitiesSchema,
   reviewBodySchema,
   reviewSchema,
+  markAvailableSchema,
 };

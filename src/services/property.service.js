@@ -500,6 +500,18 @@ const review = async (propertyId, { isApproved, rejectionReason }) => {
   return sanitizeProperty(property);
 };
 
+const markAvailable = async (propertyId, landlordId) => {
+  const property = await findOwnedProperty(propertyId, landlordId);
+
+  if (property.status !== PropertyStatus.RENTED) {
+    throw new AppError('Only rented properties can be marked as available', 409);
+  }
+
+  await property.update({ status: PropertyStatus.AVAILABLE });
+
+  return sanitizeProperty(property);
+};
+
 module.exports = {
   sanitizeProperty,
   create,
@@ -512,4 +524,5 @@ module.exports = {
   setAmenities,
   listPending,
   review,
+  markAvailable,
 };

@@ -107,6 +107,18 @@ const review = async (req, res) => {
   });
 };
 
+const markAvailable = async (req, res) => {
+  const property = await propertyService.markAvailable(
+    req.params.id,
+    req.user.id
+  );
+
+  res.status(200).json({
+    success: true,
+    data: property,
+  });
+};
+
 module.exports = {
   create,
   listPublic,
@@ -118,4 +130,5 @@ module.exports = {
   setAmenities,
   listPending,
   review,
+  markAvailable,
 };

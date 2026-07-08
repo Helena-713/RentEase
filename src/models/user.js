@@ -62,6 +62,10 @@ User.associate = (models) => {
     as: 'properties',
     foreignKey: 'landlordId',
   });
+  User.hasMany(models.Application, {
+    as: 'applications',
+    foreignKey: 'tenantId',
+  });
 };
 
 module.exports = User;

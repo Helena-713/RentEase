@@ -314,3 +314,25 @@ registry.registerPath({
     404: { description: 'Not found', content: { 'application/json': { schema: errorResponseSchema } } },
   },
 });
+
+registry.registerPath({
+  method: 'patch',
+  path: '/properties/{id}/available',
+  tags: ['Properties'],
+  summary: 'Mark a rented property as available (landlord owner only)',
+  security: [{ bearerAuth: [] }],
+  responses: {
+    200: {
+      description: 'Property marked as available',
+      content: {
+        'application/json': {
+          schema: propertyResponseSchema,
+        },
+      },
+    },
+    401: { description: 'Unauthorized', content: { 'application/json': { schema: errorResponseSchema } } },
+    403: { description: 'Forbidden', content: { 'application/json': { schema: errorResponseSchema } } },
+    404: { description: 'Not found', content: { 'application/json': { schema: errorResponseSchema } } },
+    409: { description: 'Conflict', content: { 'application/json': { schema: errorResponseSchema } } },
+  },
+});

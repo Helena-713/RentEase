@@ -4,6 +4,7 @@ require('./paths/user.path');
 require('./paths/landlordVerification.path');
 require('./paths/property.path');
 require('./paths/amenity.path');
+require('./paths/application.path');
 
 const { OpenApiGeneratorV3 } = require('@asteasolutions/zod-to-openapi');
 const registry = require('./registry');

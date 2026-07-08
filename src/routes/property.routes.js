@@ -17,6 +17,7 @@ const {
   deleteImageSchema,
   setPropertyAmenitiesSchema,
   reviewSchema,
+  markAvailableSchema,
 } = require('../schemas/property.schema');
 const { UserRole } = require('../constants/userRoles');
 const AppError = require('../utils/AppError');
@@ -81,6 +82,14 @@ router.patch(
   authorizeAdmin,
   validate(reviewSchema),
   asyncHandler(propertyController.review)
+);
+
+router.patch(
+  '/:id/available',
+  authenticate,
+  authorizeLandlord,
+  validate(markAvailableSchema),
+  asyncHandler(propertyController.markAvailable)
 );
 
 router.put(
