@@ -1,6 +1,5 @@
 const registry = require('../registry');
 const {
-  registerBodySchema,
   loginBodySchema,
   authResponseSchema,
 } = require('../../schemas/auth.schema');
@@ -14,8 +13,27 @@ registry.registerPath({
   request: {
     body: {
       content: {
-        'application/json': {
-          schema: registerBodySchema,
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            required: [
+              'firstName',
+              'lastName',
+              'email',
+              'password',
+              'phone',
+              'role',
+            ],
+            properties: {
+              firstName: { type: 'string' },
+              lastName: { type: 'string' },
+              email: { type: 'string', format: 'email' },
+              password: { type: 'string', minLength: 8 },
+              phone: { type: 'string' },
+              role: { type: 'string', enum: ['LAND_LORD', 'TENANT'] },
+              profileImage: { type: 'string', format: 'binary' },
+            },
+          },
         },
       },
     },

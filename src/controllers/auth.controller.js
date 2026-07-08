@@ -1,7 +1,15 @@
 const authService = require('../services/auth.service');
+const { buildProfileImagePath } = require('../config/upload');
 
 const register = async (req, res) => {
-  const data = await authService.register(req.body);
+  const profileImage = req.file
+    ? buildProfileImagePath(req.file.filename)
+    : null;
+
+  const data = await authService.register(
+    { ...req.body, profileImage },
+    { uploadedFilename: req.file?.filename }
+  );
 
   res.status(201).json({
     success: true,
