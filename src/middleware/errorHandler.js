@@ -4,10 +4,10 @@ const logger = require('../config/logger');
 
 const errorHandlers = [
   {
-    match: (err) => err instanceof ValidationError,
+    match: (err) => err instanceof UniqueConstraintError,
     handle: (err) => ({
-      statusCode: 400,
-      message: 'Validation failed',
+      statusCode: 409,
+      message: 'Resource already exists',
       errors: err.errors.map((e) => ({
         field: e.path,
         message: e.message,
@@ -15,10 +15,10 @@ const errorHandlers = [
     }),
   },
   {
-    match: (err) => err instanceof UniqueConstraintError,
+    match: (err) => err instanceof ValidationError,
     handle: (err) => ({
-      statusCode: 409,
-      message: 'Resource already exists',
+      statusCode: 400,
+      message: 'Validation failed',
       errors: err.errors.map((e) => ({
         field: e.path,
         message: e.message,

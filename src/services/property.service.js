@@ -1,6 +1,14 @@
-const { Property, PropertyImage, User, sequelize } = require('../models');
+const {
+  Amenity,
+  Property,
+  PropertyAmenity,
+  PropertyImage,
+  User,
+  sequelize,
+} = require('../models');
 const AppError = require('../utils/AppError');
 const logger = require('../config/logger');
+const { UserRole } = require('../constants/userRoles');
 const { PropertyStatus } = require('../constants/propertyStatus');
 const { MAX_PROPERTY_IMAGES } = require('../constants/upload');
 const { getPaginationOptions } = require('../utils/pagination');
@@ -18,6 +26,13 @@ const imageInclude = {
   order: [['displayOrder', 'ASC']],
 };
 
+const amenityInclude = {
+  model: Amenity,
+  as: 'amenities',
+  through: { attributes: [] },
+  attributes: ['id', 'name'],
+};
+
 const sanitizeLandlordSummary = (landlord) => ({
   id: landlord.id,
   firstName: landlord.firstName,
@@ -33,6 +48,11 @@ const sanitizeImage = (image) => ({
   isCover: image.isCover,
   displayOrder: image.displayOrder,
   createdAt: image.createdAt,
+});
+
+const sanitizeAmenity = (amenity) => ({
+  id: amenity.id,
+  name: amenity.name,
 });
 
 const sanitizeProperty = (property, { includeLandlord = false } = {}) => {
@@ -57,6 +77,9 @@ const sanitizeProperty = (property, { includeLandlord = false } = {}) => {
     images: property.images
       ? property.images.map(sanitizeImage)
       : undefined,
+    amenities: property.amenities
+      ? property.amenities.map(sanitizeAmenity)
+      : undefined,
   };
 
   if (includeLandlord && property.landlord) {
@@ -69,7 +92,7 @@ const sanitizeProperty = (property, { includeLandlord = false } = {}) => {
 const findOwnedProperty = async (propertyId, landlordId) => {
   const property = await Property.findOne({
     where: { id: propertyId, landlordId },
-    include: [imageInclude],
+    include: [imageInclude, amenityInclude],
   });
 
   if (!property) {
@@ -166,7 +189,8 @@ const create = async (landlordId, data, files, { log: requestLog } = {}) => {
 const listMine = async (landlordId, { page, limit }) => {
   const { rows, count } = await Property.findAndCountAll({
     where: { landlordId },
-    include: [imageInclude],
+    include: [imageInclude, amenityInclude],
+    distinct: true,
     order: [['createdAt', 'DESC']],
     ...getPaginationOptions({ page, limit }),
   });
@@ -180,7 +204,8 @@ const listMine = async (landlordId, { page, limit }) => {
 const listPublic = async ({ page, limit }) => {
   const { rows, count } = await Property.findAndCountAll({
     where: { isApproved: true },
-    include: [imageInclude],
+    include: [imageInclude, amenityInclude],
+    distinct: true,
     order: [['createdAt', 'DESC']],
     ...getPaginationOptions({ page, limit }),
   });
@@ -194,7 +219,7 @@ const listPublic = async ({ page, limit }) => {
 const getPublicById = async (propertyId) => {
   const property = await Property.findOne({
     where: { id: propertyId, isApproved: true },
-    include: [imageInclude],
+    include: [imageInclude, amenityInclude],
   });
 
   if (!property) {
@@ -350,17 +375,87 @@ const deleteImage = async (propertyId, imageId, landlordId) => {
   }
 };
 
+const getPropertyWithAssociations = async (propertyId) => {
+  const property = await Property.findByPk(propertyId, {
+    include: [imageInclude, amenityInclude],
+  });
+
+  if (!property) {
+    throw new AppError('Property not found', 404);
+  }
+
+  return property;
+};
+
+const setAmenities = async (
+  propertyId,
+  amenityIds,
+  { userId, userRole } = {}
+) => {
+  const property = await Property.findByPk(propertyId);
+
+  if (!property) {
+    throw new AppError('Property not found', 404);
+  }
+
+  if (userRole !== UserRole.ADMIN && property.landlordId !== userId) {
+    throw new AppError('Forbidden', 403);
+  }
+
+  const uniqueAmenityIds = [...new Set(amenityIds)];
+
+  if (uniqueAmenityIds.length > 0) {
+    const amenities = await Amenity.findAll({
+      where: { id: uniqueAmenityIds },
+      attributes: ['id'],
+    });
+
+    if (amenities.length !== uniqueAmenityIds.length) {
+      throw new AppError('One or more amenities are invalid', 400);
+    }
+  }
+
+  const transaction = await sequelize.transaction();
+
+  try {
+    await PropertyAmenity.destroy({
+      where: { propertyId },
+      transaction,
+    });
+
+    if (uniqueAmenityIds.length > 0) {
+      await PropertyAmenity.bulkCreate(
+        uniqueAmenityIds.map((amenityId) => ({
+          propertyId,
+          amenityId,
+        })),
+        { transaction }
+      );
+    }
+
+    await transaction.commit();
+
+    const updatedProperty = await getPropertyWithAssociations(propertyId);
+    return sanitizeProperty(updatedProperty);
+  } catch (err) {
+    await transaction.rollback();
+    throw err;
+  }
+};
+
 const listPending = async ({ page, limit }) => {
   const { rows, count } = await Property.findAndCountAll({
     where: { isApproved: false },
     include: [
       imageInclude,
+      amenityInclude,
       {
         model: User,
         as: 'landlord',
         attributes: ['id', 'firstName', 'lastName', 'email', 'phone'],
       },
     ],
+    distinct: true,
     order: [['createdAt', 'ASC']],
     ...getPaginationOptions({ page, limit }),
   });
@@ -375,7 +470,7 @@ const listPending = async ({ page, limit }) => {
 
 const review = async (propertyId, { isApproved, rejectionReason }) => {
   const property = await Property.findByPk(propertyId, {
-    include: [imageInclude],
+    include: [imageInclude, amenityInclude],
   });
 
   if (!property) {
@@ -401,7 +496,7 @@ const review = async (propertyId, { isApproved, rejectionReason }) => {
     });
   }
 
-  await property.reload({ include: [imageInclude] });
+  await property.reload({ include: [imageInclude, amenityInclude] });
   return sanitizeProperty(property);
 };
 
@@ -414,6 +509,7 @@ module.exports = {
   getByIdForOwner,
   update,
   deleteImage,
+  setAmenities,
   listPending,
   review,
 };

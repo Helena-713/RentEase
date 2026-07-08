@@ -2,6 +2,7 @@ const registry = require('../registry');
 const {
   propertyResponseSchema,
   propertyPaginatedResponseSchema,
+  setPropertyAmenitiesBodySchema,
   reviewBodySchema,
 } = require('../../schemas/property.schema');
 const { paginationQuerySchema } = require('../../schemas/pagination.schema');
@@ -223,6 +224,37 @@ registry.registerPath({
       },
     },
     400: { description: 'Cannot delete last image', content: { 'application/json': { schema: errorResponseSchema } } },
+    401: { description: 'Unauthorized', content: { 'application/json': { schema: errorResponseSchema } } },
+    403: { description: 'Forbidden', content: { 'application/json': { schema: errorResponseSchema } } },
+    404: { description: 'Not found', content: { 'application/json': { schema: errorResponseSchema } } },
+  },
+});
+
+registry.registerPath({
+  method: 'put',
+  path: '/properties/{id}/amenities',
+  tags: ['Properties'],
+  summary: 'Replace property amenities (owner landlord or admin)',
+  security: [{ bearerAuth: [] }],
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: setPropertyAmenitiesBodySchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Property amenities updated',
+      content: {
+        'application/json': {
+          schema: propertyResponseSchema,
+        },
+      },
+    },
+    400: { description: 'Validation failed', content: { 'application/json': { schema: errorResponseSchema } } },
     401: { description: 'Unauthorized', content: { 'application/json': { schema: errorResponseSchema } } },
     403: { description: 'Forbidden', content: { 'application/json': { schema: errorResponseSchema } } },
     404: { description: 'Not found', content: { 'application/json': { schema: errorResponseSchema } } },

@@ -85,6 +85,12 @@ Property.associate = (models) => {
     as: 'images',
     foreignKey: 'propertyId',
   });
+  Property.belongsToMany(models.Amenity, {
+    through: models.PropertyAmenity,
+    foreignKey: 'propertyId',
+    otherKey: 'amenityId',
+    as: 'amenities',
+  });
 };
 
 module.exports = Property;

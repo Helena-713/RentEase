@@ -76,6 +76,22 @@ const deleteImage = async (req, res) => {
   });
 };
 
+const setAmenities = async (req, res) => {
+  const property = await propertyService.setAmenities(
+    req.params.id,
+    req.body.amenityIds,
+    {
+      userId: req.user.id,
+      userRole: req.user.role,
+    }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: property,
+  });
+};
+
 const listPending = async (req, res) => {
   const { page, limit } = req.query;
   const result = await propertyService.listPending({ page, limit });
@@ -99,6 +115,7 @@ module.exports = {
   getById,
   update,
   deleteImage,
+  setAmenities,
   listPending,
   review,
 };

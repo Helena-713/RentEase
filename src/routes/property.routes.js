@@ -15,6 +15,7 @@ const {
   listMineSchema,
   listPendingSchema,
   deleteImageSchema,
+  setPropertyAmenitiesSchema,
   reviewSchema,
 } = require('../schemas/property.schema');
 const { UserRole } = require('../constants/userRoles');
@@ -80,6 +81,13 @@ router.patch(
   authorizeAdmin,
   validate(reviewSchema),
   asyncHandler(propertyController.review)
+);
+
+router.put(
+  '/:id/amenities',
+  authenticate,
+  validate(setPropertyAmenitiesSchema),
+  asyncHandler(propertyController.setAmenities)
 );
 
 router.patch(

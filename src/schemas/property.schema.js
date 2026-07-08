@@ -15,6 +15,13 @@ const propertyImageSchema = z
   })
   .openapi('PropertyImage');
 
+const propertyAmenitySchema = z
+  .object({
+    id: z.string().uuid(),
+    name: z.string(),
+  })
+  .openapi('PropertyAmenity');
+
 const landlordSummarySchema = z
   .object({
     id: z.string().uuid(),
@@ -45,6 +52,7 @@ const propertySchema = z
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime(),
     images: z.array(propertyImageSchema).optional(),
+    amenities: z.array(propertyAmenitySchema).optional(),
     landlord: landlordSummarySchema.optional(),
   })
   .openapi('Property');
@@ -123,6 +131,17 @@ const deleteImageSchema = z.object({
   params: propertyImageParamsSchema,
 });
 
+const setPropertyAmenitiesBodySchema = z
+  .object({
+    amenityIds: z.array(z.string().uuid()),
+  })
+  .openapi('SetPropertyAmenitiesBody');
+
+const setPropertyAmenitiesSchema = z.object({
+  params: propertyIdParamsSchema,
+  body: setPropertyAmenitiesBodySchema,
+});
+
 const reviewBodySchema = z
   .object({
     isApproved: z.boolean(),
@@ -155,6 +174,8 @@ module.exports = {
   listMineSchema,
   listPendingSchema,
   deleteImageSchema,
+  setPropertyAmenitiesBodySchema,
+  setPropertyAmenitiesSchema,
   reviewBodySchema,
   reviewSchema,
 };
