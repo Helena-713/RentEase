@@ -8,7 +8,10 @@ const register = async (req, res) => {
 
   const data = await authService.register(
     { ...req.body, profileImage },
-    { uploadedFilename: req.file?.filename }
+    {
+      uploadedFilename: req.file?.filename,
+      log: req.log,
+    }
   );
 
   res.status(201).json({
@@ -18,7 +21,7 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const data = await authService.login(req.body);
+  const data = await authService.login(req.body, { log: req.log });
 
   res.status(200).json({
     success: true,

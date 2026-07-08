@@ -2,11 +2,12 @@ const path = require('path');
 const multer = require('multer');
 const { randomUUID } = require('crypto');
 const AppError = require('../utils/AppError');
+const { UPLOAD_DIR } = require('../config/upload');
 const {
-  UPLOAD_DIR,
-  MAX_FILE_SIZE,
+  UPLOAD_MAX_FILE_SIZE,
+  UPLOAD_MAX_FILE_SIZE_MB,
   ALLOWED_IMAGE_TYPES,
-} = require('../config/upload');
+} = require('../constants/upload');
 
 const storage = multer.diskStorage({
   destination: UPLOAD_DIR,
@@ -16,8 +17,12 @@ const storage = multer.diskStorage({
   },
 });
 
-const fileFilter = (_req, file, cb) => {
+const fileFilter = (req, file, cb) => {
   if (!ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
+    req.log?.warn(
+      { mimetype: file.mimetype },
+      'Profile image rejected: invalid file type'
+    );
     return cb(new AppError('Only image files are allowed', 400));
   }
   cb(null, true);
@@ -26,20 +31,27 @@ const fileFilter = (_req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: MAX_FILE_SIZE },
+  limits: { fileSize: UPLOAD_MAX_FILE_SIZE },
 });
 
 const uploadProfileImage = (req, res, next) => {
   upload.single('profileImage')(req, res, (err) => {
     if (err instanceof multer.MulterError) {
       if (err.code === 'LIMIT_FILE_SIZE') {
-        return next(new AppError('File too large. Maximum size is 5 MB', 400));
+        req.log?.warn({ code: err.code }, 'Profile image rejected: file too large');
+        return next(
+          new AppError(
+            `File too large. Maximum size is ${UPLOAD_MAX_FILE_SIZE_MB} MB`,
+            400
+          )
+        );
       }
       return next(new AppError(err.message, 400));
     }
     if (err) {
       return next(err);
     }
+
     next();
   });
 };
