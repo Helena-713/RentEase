@@ -6,6 +6,7 @@ const create = async (req, res) => {
     reviewerId: req.user.id,
     reviewerRole: req.user.role,
     propertyId: req.body.propertyId,
+    applicationId:req.body.applicationId,
     targetType: req.body.targetType,
     rating: req.body.rating,
     comment: req.body.comment,
